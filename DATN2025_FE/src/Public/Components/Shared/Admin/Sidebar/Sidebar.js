@@ -1,0 +1,55 @@
+import React from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
+function Sidebar() {
+
+    return (
+        <>
+            <aside id="sidebar" className="sidebar">
+
+                <ul className="sidebar-nav" id="sidebar-nav">
+
+                    <li className="nav-item">
+                        <a className="nav-link collapsed" href="/admin/dashboard">
+                            <i className="bi bi-grid"></i>
+                            <span>Thống kê</span>
+                        </a>
+                    </li>
+
+                    <li className="nav-item">
+                        <a className="nav-link collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse"
+                           href="#">
+                            <i className="bi bi-menu-button-wide"></i><span>Danh mục</span><i
+                            className="bi bi-chevron-down ms-auto"></i>
+                        </a>
+                        <ul id="components-nav" className="nav-content collapse " data-bs-parent="#sidebar-nav">
+                            <li>
+                                <a href="/admin/categories/list">
+                                    <i className="bi bi-circle"></i><span>Danh sách danh mục</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/admin/categories/create">
+                                    <i className="bi bi-circle"></i><span>Thêm mới danh mục</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li className="nav-heading">Trang</li>
+
+                    <li className="nav-item">
+                        <a className="nav-link collapsed" href="/profile">
+                            <i className="bi bi-person"></i>
+                            <span>Trang cá nhân</span>
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+        </>
+
+    )
+}
+
+export default Sidebar
