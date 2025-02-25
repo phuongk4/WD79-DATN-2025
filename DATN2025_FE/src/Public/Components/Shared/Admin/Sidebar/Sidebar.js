@@ -36,7 +36,26 @@ function Sidebar() {
                             </li>
                         </ul>
                     </li>
-
+                    <li className="nav-item">
+                        <a className="nav-link collapsed" data-bs-target="#attributes-nav" data-bs-toggle="collapse"
+                           href="#">
+                            <i className="bi bi-menu-down"></i><span>Thuộc tính</span><i
+                            className="bi bi-chevron-down ms-auto"></i>
+                        </a>
+                        <ul id="attributes-nav" className="nav-content collapse " data-bs-parent="#sidebar-nav">
+                            <li>
+                                <a href="/admin/attributes/list">
+                                    <i className="bi bi-circle"></i><span>Danh sách thuộc tính</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/admin/attributes/create">
+                                    <i className="bi bi-circle"></i><span>Thêm mới thuộc tính</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    
                     <li className="nav-heading">Trang</li>
 
                     <li className="nav-item">
