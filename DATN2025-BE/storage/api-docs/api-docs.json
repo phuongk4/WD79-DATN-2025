@@ -5,6 +5,21 @@
         "version": "3.0"
     },
     "paths": {
+        "/api/attributes/list": {
+            "get": {
+                "tags": [
+                    "Attribute"
+                ],
+                "summary": "Get list of attributes",
+                "description": "Get list of attributes",
+                "operationId": "0ae49d46f00c541457cfd0c91745af01",
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "tags": [
@@ -311,6 +326,189 @@
                 }
             }
         },
+        "/api/admin/attributes/list": {
+            "get": {
+                "tags": [
+                    "Admin Attribute"
+                ],
+                "summary": "Get list of attributes",
+                "description": "Get list of attributes",
+                "operationId": "1c534e2a4f980e27b6468f6901fa9cf0",
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                }
+            }
+        },
+        "/api/admin/attributes/detail/{id}": {
+            "get": {
+                "tags": [
+                    "Admin Attribute"
+                ],
+                "summary": "Get detail of an attribute",
+                "description": "Get detail of an attribute",
+                "operationId": "ab72c43b2d1b3ddcc53789e9ae10dcc8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Attribute ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    },
+                    "404": {
+                        "description": "Attribute not found"
+                    }
+                }
+            }
+        },
+        "/api/admin/attributes/create": {
+            "post": {
+                "tags": [
+                    "Admin Attribute"
+                ],
+                "summary": "Create an attribute",
+                "description": "Create an attribute",
+                "operationId": "7bb5f8f6681b3090acec49ee787af91c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "description": "Attribute name",
+                                        "type": "string",
+                                        "example": "Attribute 1"
+                                    },
+                                    "status": {
+                                        "description": "Attribute status",
+                                        "type": "integer",
+                                        "example": "ĐANG HOẠT ĐỘNG"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/api/admin/attributes/update/{id}": {
+            "put": {
+                "tags": [
+                    "Admin Attribute"
+                ],
+                "summary": "Update an attribute",
+                "description": "Update an attribute",
+                "operationId": "c22510ba09271b5be0ca6ce6e6db11c6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Attribute ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Attribute information",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "description": "Attribute name",
+                                        "type": "string",
+                                        "example": "Attribute 1"
+                                    },
+                                    "status": {
+                                        "description": "Attribute status",
+                                        "type": "integer",
+                                        "example": "ĐANG HOẠT ĐỘNG"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/api/admin/attributes/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "Admin Attribute"
+                ],
+                "summary": "Delete an attribute",
+                "description": "Delete an attribute",
+                "operationId": "c8a6aa3eecb1c660bc4d22046bc09fd9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Attribute ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
         "/api/admin/categories/list": {
             "get": {
                 "tags": [
@@ -524,8 +722,16 @@
     },
     "tags": [
         {
+            "name": "Attribute",
+            "description": "Attribute"
+        },
+        {
             "name": "Auth",
             "description": "Auth"
+        },
+        {
+            "name": "Admin Attribute",
+            "description": "Admin Attribute"
         },
         {
             "name": "Admin Category",
