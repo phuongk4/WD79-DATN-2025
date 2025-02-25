@@ -20,6 +20,10 @@ import ListCategory from './Components/AdminApp/Category/ListCategory/ListCatego
 import CreateCategory from './Components/AdminApp/Category/CreateCategory/CreateCategory';
 import DetailCategory from './Components/AdminApp/Category/DetailCategory/DetailCategory';
 import UpdateCategory from './Components/AdminApp/Category/UpdateCategory/UpdateCategory';
+/* Admin Attribute */
+import ListAttribute from './Components/AdminApp/Attribute/ListAttribute/ListAttribute';
+import CreateAttribute from './Components/AdminApp/Attribute/CreateAttribute/CreateAttribute';
+import DetailAttribute from './Components/AdminApp/Attribute/DetailAttribute/DetailAttribute';
 
 /**
  * This component renders the routes for the public part of the application.
@@ -48,6 +52,10 @@ function Public() {
                 <Route path='/admin/categories/create' element={<CreateCategory/>}/>
                 <Route path='/admin/categories/detail/:id' element={<DetailCategory/>}/>
                 <Route path='/admin/categories/update/:id' element={<UpdateCategory/>}/>
+                 {/* Admin Attributes */}
+                 <Route path='/admin/attributes/list' element={<ListAttribute/>}/>
+                <Route path='/admin/attributes/create' element={<CreateAttribute/>}/>
+                <Route path='/admin/attributes/detail/:id' element={<DetailAttribute/>}/>
             </Routes>
         </div>
     )
