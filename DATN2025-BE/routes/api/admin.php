@@ -3,6 +3,7 @@
 use App\Http\Controllers\restapi\admin\AdminAttributeApi;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\restapi\admin\AdminCategoryApi;
+use App\Http\Controllers\restapi\admin\AdminPropertyApi;
 
 Route::group(['prefix' => 'categories'], function () {
     Route::get('list', [AdminCategoryApi::class, 'list'])->name('api.admin.categories.list');
@@ -18,4 +19,12 @@ Route::group(['prefix' => 'attributes'], function () {
     Route::post('create', [AdminAttributeApi::class, 'create'])->name('api.admin.attributes.create');
     Route::post('update/{id}', [AdminAttributeApi::class, 'update'])->name('api.admin.attributes.update');
     Route::delete('delete/{id}', [AdminAttributeApi::class, 'delete'])->name('api.admin.attributes.delete');
+});
+
+Route::group(['prefix' => 'properties'], function () {
+    Route::get('list', [AdminPropertyApi::class, 'list'])->name('api.admin.properties.list');
+    Route::get('detail/{id}', [AdminPropertyApi::class, 'detail'])->name('api.admin.properties.detail');
+    Route::post('create', [AdminPropertyApi::class, 'create'])->name('api.admin.properties.create');
+    Route::post('update/{id}', [AdminPropertyApi::class, 'update'])->name('api.admin.properties.update');
+    Route::delete('delete/{id}', [AdminPropertyApi::class, 'delete'])->name('api.admin.properties.delete');
 });

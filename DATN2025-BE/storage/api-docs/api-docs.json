@@ -326,6 +326,71 @@
                 }
             }
         },
+        "/api/properties/list": {
+            "get": {
+                "tags": [
+                    "Property"
+                ],
+                "summary": "Get list of properties",
+                "description": "Get list of properties",
+                "operationId": "7955123ac6eabfa7258605f5e798dab6",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Name of the property",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "attribute_id",
+                        "in": "query",
+                        "description": "Attribute ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    }
+                }
+            }
+        },
+        "/api/properties/detail/{id}": {
+            "get": {
+                "tags": [
+                    "Property"
+                ],
+                "summary": "Get detail of a property",
+                "description": "Get detail of a property",
+                "operationId": "6facbe004f716f0dafbae0587a27c159",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Property ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "404": {
+                        "description": "Property not found"
+                    }
+                }
+            }
+        },
         "/api/admin/attributes/list": {
             "get": {
                 "tags": [
@@ -708,6 +773,207 @@
                     }
                 }
             }
+        },
+        "/api/admin/properties/list": {
+            "get": {
+                "tags": [
+                    "Admin Property"
+                ],
+                "summary": "Get list of properties",
+                "description": "Get list of properties",
+                "operationId": "565f5362f0546f5014d060b629c70973",
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                }
+            }
+        },
+        "/api/admin/properties/detail/{id}": {
+            "get": {
+                "tags": [
+                    "Admin Property"
+                ],
+                "summary": "Get detail of a property",
+                "description": "Get detail of a property",
+                "operationId": "0bb847479c5da12d4979dc7d5f5cee8d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Property ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    },
+                    "404": {
+                        "description": "Property not found"
+                    }
+                }
+            }
+        },
+        "/api/admin/properties/create": {
+            "post": {
+                "tags": [
+                    "Admin Property"
+                ],
+                "summary": "Create a property",
+                "description": "Create a property",
+                "operationId": "b4385c20072db77e91d81ce51cb0e486",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "description": "Name of the property",
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                        "description": "Status of the property",
+                                        "type": "integer"
+                                    },
+                                    "attribute_id": {
+                                        "description": "Attribute ID",
+                                        "type": "integer"
+                                    },
+                                    "thumbnail": {
+                                        "description": "Thumbnail of the property",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    }
+                }
+            }
+        },
+        "/api/admin/properties/update/{id}": {
+            "put": {
+                "tags": [
+                    "Admin Property"
+                ],
+                "summary": "Update a property",
+                "description": "Update a property",
+                "operationId": "53e4d6e98358e21a86755298df330dfd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Property ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "description": "Name of the property",
+                                        "type": "string"
+                                    },
+                                    "thumbnail": {
+                                        "description": "Thumbnail of the property",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "status": {
+                                        "description": "Property status",
+                                        "type": "integer",
+                                        "example": "ĐANG HOẠT ĐỘNG"
+                                    },
+                                    "attribute_id": {
+                                        "description": "Attribute ID",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Property not found"
+                    }
+                }
+            }
+        },
+        "/api/admin/properties/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "Admin Property"
+                ],
+                "summary": "Delete a property",
+                "description": "Delete a property",
+                "operationId": "608e1b7416f133a5fc0df7e336a1bda1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Property ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    },
+                    "404": {
+                        "description": "Property not found"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -730,12 +996,20 @@
             "description": "Auth"
         },
         {
+            "name": "Property",
+            "description": "Property"
+        },
+        {
             "name": "Admin Attribute",
             "description": "Admin Attribute"
         },
         {
             "name": "Admin Category",
             "description": "Admin Category"
+        },
+        {
+            "name": "Admin Property",
+            "description": "Admin Property"
         }
     ]
 }
