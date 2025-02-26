@@ -24,7 +24,10 @@ import UpdateCategory from './Components/AdminApp/Category/UpdateCategory/Update
 import ListAttribute from './Components/AdminApp/Attribute/ListAttribute/ListAttribute';
 import CreateAttribute from './Components/AdminApp/Attribute/CreateAttribute/CreateAttribute';
 import DetailAttribute from './Components/AdminApp/Attribute/DetailAttribute/DetailAttribute';
-
+/* Admin Property */
+import ListProperty from './Components/AdminApp/Property/ListProperty/ListProperty';
+import CreateProperty from './Components/AdminApp/Property/CreateProperty/CreateProperty';
+import DetailProperty from './Components/AdminApp/Property/DetailProperty/DetailProperty';
 /**
  * This component renders the routes for the public part of the application.
  * It includes the auth pages, the error pages, the client pages, the client auth pages, and the admin pages.
@@ -56,6 +59,10 @@ function Public() {
                  <Route path='/admin/attributes/list' element={<ListAttribute/>}/>
                 <Route path='/admin/attributes/create' element={<CreateAttribute/>}/>
                 <Route path='/admin/attributes/detail/:id' element={<DetailAttribute/>}/>
+                {/* Admin Properties */}
+                <Route path='/admin/properties/list' element={<ListProperty/>}/>
+                <Route path='/admin/properties/create' element={<CreateProperty/>}/>
+                <Route path='/admin/properties/detail/:id' element={<DetailProperty/>}/>
             </Routes>
         </div>
     )
