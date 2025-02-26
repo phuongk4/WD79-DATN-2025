@@ -7,6 +7,7 @@ use App\Enums\AttributeStatus;
 use App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Attributes;
+use App\Models\Properties;
 // use App\Models\Products;
 // use App\Models\Properties;
 use OpenApi\Annotations as OA;
@@ -34,11 +35,11 @@ class AttributeApi extends Api
             ->map(function ($item) {
                 $attribute = $item->toArray();
 
-                // $properties = Properties::where('attribute_id', $item->id)
-                //     ->orderByDesc('id')
-                //     ->get();
+                $properties = Properties::where('attribute_id', $item->id)
+                    ->orderByDesc('id')
+                    ->get();
 
-                // $attribute['properties'] = $properties->toArray();
+                $attribute['properties'] = $properties->toArray();
 
                 return $attribute;
             });

@@ -2,6 +2,7 @@
 use App\Http\Controllers\restapi\AttributeApi;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\restapi\CategoryApi;
+use App\Http\Controllers\restapi\PropertyApi;
 
 Route::group(['prefix' => 'categories'], function () {
     Route::get('list', [CategoryApi::class, 'list'])->name('api.restapi.categories.list');
@@ -11,3 +12,7 @@ Route::group(['prefix' => 'attributes'], function () {
     Route::get('list', [AttributeApi::class, 'list'])->name('api.restapi.attributes.list');
 });
 
+Route::group(['prefix' => 'properties'], function () {
+    Route::get('list', [PropertyApi::class, 'list'])->name('api.restapi.properties.list');
+    Route::get('detail/{id}', [PropertyApi::class, 'detail'])->name('api.restapi.properties.detail');
+});
