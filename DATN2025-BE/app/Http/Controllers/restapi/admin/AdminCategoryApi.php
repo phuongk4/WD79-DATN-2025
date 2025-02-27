@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\restapi\admin;
 
 use App\Enums\CategoryStatus;
+use App\Enums\ProductStatus;
 use App\Http\Controllers\Api;
 use App\Models\Categories;
+use App\Models\Products;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -309,6 +311,17 @@ class AdminCategoryApi extends Api
     {
         try {
             $category = Categories::find($id);
+
+            /* Kiểm tra danh mục có tồn tại sản phẩm hay không*/
+            $products = Products::where('category_id', $id)
+                ->where('status', '!=', ProductStatus::DELETED)
+                ->get();
+
+            /* Nếu danh mục có sản phẩm thì đưa về mã lỗi 400 kèm thông báo  */
+            if (count($products) > 0) {
+                $data = returnMessage(-1, null, 'Không thể xoá danh mục có sản phẩm!');
+                return response()->json($data, 400);
+            }
 
             $category->status = CategoryStatus::DELETED;
             $category->deleted_by = Auth::user()->id;
