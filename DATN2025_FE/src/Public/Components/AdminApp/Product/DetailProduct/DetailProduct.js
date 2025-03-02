@@ -95,7 +95,7 @@ function DetailProduct() {
         let html = '';
         for (let i = 0; i < arr.length; i++) {
             html += `<div class="item">
-          <img width="200px" src="${arr[i]}" alt="${alt}">
+          <img width="200px" src="http://127.0.0.1:8000${arr[i]}" alt="${alt}">
         </div>`;
         }
 
@@ -339,8 +339,8 @@ function DetailProduct() {
                                             <div className="form-group col-md-6">
                                                 <label htmlFor="file">Hình ảnh</label>
 
-                                                <img className="mt-3" width="200px" src={product.thumbnail}
-                                                     alt={product.name}/>
+                                                <img className="mt-3" width="200px" src={`http://127.0.0.1:8000${product.thumbnail}`} alt={product.name} />
+
                                             </div>
                                             <div className="form-group col-md-6">
                                                 <label htmlFor="file">Hình ảnh chi tiết</label>

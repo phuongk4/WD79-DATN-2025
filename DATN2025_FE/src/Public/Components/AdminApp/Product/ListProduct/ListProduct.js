@@ -74,7 +74,7 @@ function ListProduct() {
              * @param {string} text - The text to be rendered.
              * @returns {ReactElement} The rendered React element.
              */
-            render: (text) => <img src={text} alt="image" style={{width: '150px'}}/>,
+            render: (text) => <img src={`http://127.0.0.1:8000${text}`} alt="image" style={{ width: '150px' }} />,// sửa ảnhảnh
         },
         {
             title: 'Tên sản phẩm',
