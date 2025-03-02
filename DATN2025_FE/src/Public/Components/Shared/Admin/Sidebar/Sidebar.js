@@ -74,7 +74,25 @@ function Sidebar() {
                             </li>
                         </ul>
                     </li>
-                    
+                    <li className="nav-item">
+                        <a className="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse"
+                           href="#">
+                            <i className="bi bi-journal-text"></i><span>Quản lí sản phẩm</span><i
+                            className="bi bi-chevron-down ms-auto"></i>
+                        </a>
+                        <ul id="forms-nav" className="nav-content collapse " data-bs-parent="#sidebar-nav">
+                            <li>
+                                <a href="/admin/products/list">
+                                    <i className="bi bi-circle"></i><span>Danh sách sản phẩm</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/admin/products/create">
+                                    <i className="bi bi-circle"></i><span>Thêm mới sản phẩm</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     <li className="nav-heading">Trang</li>
 
                     <li className="nav-item">
@@ -83,6 +101,7 @@ function Sidebar() {
                             <span>Trang cá nhân</span>
                         </a>
                     </li>
+                    
                 </ul>
             </aside>
         </>
