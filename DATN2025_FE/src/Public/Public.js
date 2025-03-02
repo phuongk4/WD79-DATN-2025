@@ -28,6 +28,11 @@ import DetailAttribute from './Components/AdminApp/Attribute/DetailAttribute/Det
 import ListProperty from './Components/AdminApp/Property/ListProperty/ListProperty';
 import CreateProperty from './Components/AdminApp/Property/CreateProperty/CreateProperty';
 import DetailProperty from './Components/AdminApp/Property/DetailProperty/DetailProperty';
+/* Admin Product */
+import ListProduct from './Components/AdminApp/Product/ListProduct/ListProduct';
+import CreateProduct from './Components/AdminApp/Product/CreateProduct/CreateProduct';
+import DetailProduct from './Components/AdminApp/Product/DetailProduct/DetailProduct';
+import UpdateProduct from "./Components/AdminApp/Product/UpdateProduct/UpdateProduct";
 /**
  * This component renders the routes for the public part of the application.
  * It includes the auth pages, the error pages, the client pages, the client auth pages, and the admin pages.
@@ -63,6 +68,11 @@ function Public() {
                 <Route path='/admin/properties/list' element={<ListProperty/>}/>
                 <Route path='/admin/properties/create' element={<CreateProperty/>}/>
                 <Route path='/admin/properties/detail/:id' element={<DetailProperty/>}/>
+                {/* Admin Products */}
+                <Route path='/admin/products/list' element={<ListProduct/>}/>
+                <Route path='/admin/products/create' element={<CreateProduct/>}/>
+                <Route path='/admin/products/detail/:id' element={<DetailProduct/>}/>
+                <Route path='/admin/products/update/:id' element={<UpdateProduct/>}/>
             </Routes>
         </div>
     )
