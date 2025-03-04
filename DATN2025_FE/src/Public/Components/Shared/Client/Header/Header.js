@@ -1,8 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {Link, useNavigate, useSearchParams} from 'react-router-dom';
+import accountService from "../../../Service/AccountService";
 import Css from "../../Client/Lib/StyleSheet";
 import Script from "../../Client/Lib/Script";
 import $ from "jquery";
+import cartService from "../../../Service/CartService";
 import categoryService from "../../../Service/CategoryService";
 
 function NoLogin() {
@@ -28,8 +30,24 @@ function YesLogin() {
         window.location.href = '/';
     }
 
-    useEffect(() => {
+    const getListCart = async () => {
+        await cartService.listCart()
+            .then((res) => {
+                if (res.status === 200) {
+                    setLoading(false)
+                    let count = res.data.data.length;
+                    console.log(count);
+                    $('#countCart').text(count);
+                }
+            })
+            .catch((err) => {
+                setLoading(false)
+                console.log(err)
+            })
+    }
 
+    useEffect(() => {
+        getListCart();
     }, [loading]);
 
     return (
@@ -150,7 +168,7 @@ function HeaderClient() {
 
                             <div className="col-12 mb-3 mb-md-0 col-md-4 order-1 order-md-2 text-center">
                                 <div className="site-logo">
-                                    <a href="/" className="js-logo-clone">SoleVibe</a>
+                                    <a href="/" className="js-logo-clone">Men's Fashion</a>
                                 </div>
                             </div>
 

@@ -9,6 +9,9 @@ import ChangePassword from "./Components/Account/ForgotPassword/ChangePassword";
 
 /* Main Page */
 import Home from './Components/Home/Home';
+import ProductList from './Components/Shop/ProductList/ProductList';
+import ProductDetail from './Components/Shop/ProductDetail/ProductDetail';
+import Cart from './Components/Cart/Cart';
 /* Error Page */
 import NotFound from "./Components/Shared/Error/Error404";
 import ComingSoon from "./Components/Shared/ComingSoon/ComingSoon";
@@ -53,6 +56,9 @@ function Public() {
                 <Route path='/coming-soon' element={<ComingSoon/>}/>
                 {/* Client Page */}
                 <Route path='/' element={<Home/>}/>
+                <Route path='/products' element={<ProductList/>}/>
+                <Route path='/products/:id' element={<ProductDetail/>}/>
+                <Route path='/cart' element={<Cart/>}/>
                 {/* Admin Page */}
                 <Route path='/admin/dashboard' element={<Dashboard/>}/>
                 {/* Admin Category */}

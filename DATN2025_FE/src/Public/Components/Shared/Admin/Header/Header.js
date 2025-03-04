@@ -1,3 +1,4 @@
+
 import React, {useEffect, useState} from 'react'
 import {Link, useNavigate} from 'react-router-dom'
 import accountService from "../../../Service/AccountService";
@@ -30,9 +31,9 @@ function Header() {
     const navigate = useNavigate();
 
     const login = async () => {
-        if (email == null || tokenUser == null || idUser == null) {
-            navigate("/not-found")
-        }
+        // if (email == null || tokenUser == null || idUser == null) {
+        //     navigate("/not-found")
+        // }
     };
 
     let isAdmin = true;
@@ -89,7 +90,7 @@ function Header() {
                 <div className="d-flex align-items-center justify-content-between">
                     <a href="/" className="logo d-flex align-items-center">
                         <img src="/assets/admin/img/logo.png" alt=""/>
-                        <span className="d-none d-lg-block">SoleVibe</span>
+                        <span className="d-none d-lg-block">Solevibe</span>
                     </a>
                     <i className="bi bi-list toggle-sidebar-btn" onClick={hiddenOrShow}></i>
                 </div>
