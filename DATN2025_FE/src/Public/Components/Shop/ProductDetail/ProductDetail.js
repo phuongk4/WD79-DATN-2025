@@ -1,13 +1,13 @@
-import React, {useEffect, useState} from 'react';
-import {useNavigate, useParams} from 'react-router-dom';
-import {Form, message} from 'antd';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Form, message } from 'antd';
 import cartService from '../../Service/CartService';
 import Header from "../../Shared/Client/Header/Header";
 import Footer from "../../Shared/Client/Footer/Footer";
 import productService from "../../Service/ProductService";
 import $ from "jquery";
-import {Swiper, SwiperSlide} from "swiper/react";
-import {Pagination} from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
 import LoadingPage from "../../Shared/Utils/LoadingPage";
 import ConvertNumber from "../../Shared/Utils/ConvertNumber";
 
@@ -17,7 +17,7 @@ import ConvertNumber from "../../Shared/Utils/ConvertNumber";
  * @returns {JSX.Element} The component to be rendered.
  */
 function ProductDetail() {
-    const {id} = useParams();
+    const { id } = useParams();
     const [product, setProduct] = useState([]);
     const [order, setOrder] = useState('');
     const [optionsProduct, setOptionsProduct] = useState([]);
@@ -191,7 +191,7 @@ function ProductDetail() {
 
     return (
         <div className="site-wrap">
-            <Header/>
+            <Header />
             <div className="bg-light py-3">
                 <div className="container">
                     <div className="row">
@@ -205,22 +205,28 @@ function ProductDetail() {
             <div className="site-section">
                 <div className="container">
                     <Form className="row" id="formCreate" onFinish={addToCart}>
-                        <input type="text" className="d-none" id="product_option"/>
+                        <input type="text" className="d-none" id="product_option" />
                         <div className="col-md-6">
-                            <img src={product.thumbnail} alt="Image" className="img-fluid" id="productImage"
-                                 style={{width: '100%', height: '500px',}}/>
+                            <img
+                                src={`http://127.0.0.1:8000${product.thumbnail}`}
+                                alt="Image"
+                                className="img-fluid"
+                                id="productImage"
+                                style={{ width: '100%', height: '500px' }}
+                            />
+
 
                             <div id="list_images"
-                                 className="d-flex align-items-center justify-content-start flex-wrap gap-2 mt-3">
+                                className="d-flex align-items-center justify-content-start flex-wrap gap-2 mt-3">
 
                             </div>
                         </div>
                         <div className="col-md-6">
                             <h2 className="text-black">{product.name}</h2>
-                            <p dangerouslySetInnerHTML={{__html: product.short_description}}></p>
+                            <p dangerouslySetInnerHTML={{ __html: product.short_description }}></p>
                             <p><strong className="text-danger h4"
-                                       id="product_sale_price">{ConvertNumber(product.sale_price)}</strong> <strike
-                                className="text-secondary h6" id="product_price">{ConvertNumber(product.price)}</strike>
+                                id="product_sale_price">{ConvertNumber(product.sale_price)}</strong> <strike
+                                    className="text-secondary h6" id="product_price">{ConvertNumber(product.price)}</strike>
                             </p>
                             <p>Đang sẵn: <span id="product_quantity" className="h5">{product.quantity}</span> sản phẩm
                             </p>
@@ -232,16 +238,16 @@ function ProductDetail() {
                                             {option.properties && option.properties.length > 0 ? (option.properties.map((property, propertyIndex) => {
                                                 const inputId = `option-${optionIndex}-property-${propertyIndex}`;
                                                 return (<label htmlFor={inputId} className="d-flex mr-3 mb-3"
-                                                               key={propertyIndex}>
-                                                                    <span className="d-inline-block mr-2"
-                                                                          style={{top: '0px', position: 'relative'}}>
-                                                                        <input type="checkbox"
-                                                                               onChange={(e) => selectOption(e.target)}
-                                                                               className="input_option_"
-                                                                               data-value={option.attribute.id + '-' + property.id}
-                                                                               value={property.id} id={inputId}
-                                                                               name={`option-${optionIndex}`}/>
-                                                                    </span>
+                                                    key={propertyIndex}>
+                                                    <span className="d-inline-block mr-2"
+                                                        style={{ top: '0px', position: 'relative' }}>
+                                                        <input type="checkbox"
+                                                            onChange={(e) => selectOption(e.target)}
+                                                            className="input_option_"
+                                                            data-value={option.attribute.id + '-' + property.id}
+                                                            value={property.id} id={inputId}
+                                                            name={`option-${optionIndex}`} />
+                                                    </span>
                                                     <span
                                                         className="d-inline-block text-black">{property.name}</span>
                                                 </label>);
@@ -251,21 +257,21 @@ function ProductDetail() {
 
                             </div>
                             <div className="mb-5">
-                                <div className="input-group mb-3" style={{maxWidth: '150px'}}>
+                                <div className="input-group mb-3" style={{ maxWidth: '150px' }}>
                                     <div className="input-group-prepend">
                                         <button className="btn btn-outline-primary js-btn-minus" onClick={minusQuantity}
-                                                type="button">-
+                                            type="button">-
                                         </button>
                                     </div>
 
                                     <input type="text" className="form-control text-center" defaultValue="1"
-                                           placeholder="" min='0' max={product.quantity} onInput={checkInput}
-                                           aria-label="Example text with button addon" id="inputQuantity"
-                                           aria-describedby="button-addon1"/>
+                                        placeholder="" min='0' max={product.quantity} onInput={checkInput}
+                                        aria-label="Example text with button addon" id="inputQuantity"
+                                        aria-describedby="button-addon1" />
 
                                     <div className="input-group-append">
                                         <button className="btn btn-outline-primary js-btn-plus" onClick={plusQuantity}
-                                                type="button">+
+                                            type="button">+
                                         </button>
                                     </div>
                                 </div>
@@ -279,9 +285,9 @@ function ProductDetail() {
                         </div>
                         <div className="col-md-12" id="product_description_area_">
                             <p className="product_description_"
-                               dangerouslySetInnerHTML={{__html: product.description}}></p>
+                                dangerouslySetInnerHTML={{ __html: product.description }}></p>
                             <button id="btnReadmore" onClick={handleShowDescription} type="button"
-                                    className="btn btn-outline-info">Xem thêm
+                                className="btn btn-outline-info">Xem thêm
                             </button>
                         </div>
                     </Form>
@@ -302,7 +308,7 @@ function ProductDetail() {
                                 <Swiper
                                     slidesPerView={3}
                                     spaceBetween={30}
-                                    pagination={{clickable: true}}
+                                    pagination={{ clickable: true }}
                                     modules={[Pagination]}
                                     className="mySwiper"
                                 >
@@ -312,18 +318,19 @@ function ProductDetail() {
                                                 <div className="block-4 text-center">
                                                     <figure className="block-4-image">
                                                         <img
-                                                            src={product.thumbnail || "/assets/clients/images/cloth_1.jpg"}
+                                                            src={`http://127.0.0.1:8000${product.thumbnail}` || "/assets/clients/images/cloth_1.jpg"}
                                                             alt={product.name || "Image placeholder"}
                                                             className="img-fluid"
-                                                            style={{width: '100%', height: '300px',}}
+                                                            style={{ width: '100%', height: '300px' }}
                                                         />
                                                     </figure>
-                                                    <div className="block-4-text p-4" style={{height: '180px'}}>
+
+                                                    <div className="block-4-text p-4" style={{ height: '180px' }}>
                                                         <h3><a className="text_truncate_"
-                                                               href={'/products/' + product.id}>{product.name || "Product Name"}</a>
+                                                            href={'/products/' + product.id}>{product.name || "Product Name"}</a>
                                                         </h3>
-                                                        <p className="mb-0 text_truncate_2_" style={{height: '55px'}}
-                                                           dangerouslySetInnerHTML={{__html: product.short_description}}></p>
+                                                        <p className="mb-0 text_truncate_2_" style={{ height: '55px' }}
+                                                            dangerouslySetInnerHTML={{ __html: product.short_description }}></p>
                                                         <p className="text-danger font-weight-bold">
                                                             {ConvertNumber(product.sale_price || 50)}
                                                             <strike className="ml-2 small text-black">
@@ -340,7 +347,7 @@ function ProductDetail() {
                     </div>
                 </div>
             </div>
-            <Footer/>
+            <Footer />
         </div>)
 }
 

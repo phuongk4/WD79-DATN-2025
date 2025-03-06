@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {useSearchParams} from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import attributeService from '../../Service/AttributeService';
 import Header from "../../Shared/Client/Header/Header";
 import Footer from "../../Shared/Client/Footer/Footer";
@@ -156,7 +156,7 @@ function ProductList() {
 
     return (
         <div className="site-wrap">
-            <Header/>
+            <Header />
             <div className="bg-light py-3">
                 <div className="container">
                     <div className="row">
@@ -180,7 +180,7 @@ function ProductList() {
                                     <div className="d-flex justify-content-end">
                                         <div className="btn-group">
                                             <select name="size" id="size" className="form-select"
-                                                    onChange={sortProduct}>
+                                                onChange={sortProduct}>
                                                 <option selected={size_param === ''} value="">Tất cả</option>
                                                 <option selected={size_param === '3'} value="3">3</option>
                                                 <option selected={size_param === '6'} value="6">6</option>
@@ -190,7 +190,7 @@ function ProductList() {
 
                                         <div className="btn-group ms-3">
                                             <select name="sort" id="sort" className="form-select"
-                                                    onChange={sortProduct}>
+                                                onChange={sortProduct}>
                                                 <option selected={sort_param === 'desc'} value="desc">Từ cao đến thấp
                                                 </option>
                                                 <option selected={sort_param === 'asc'} value="asc">Từ thấp đến cao
@@ -207,15 +207,17 @@ function ProductList() {
                                         <div className="block-4 text-center border">
                                             <figure className="block-4-image">
                                                 <a href={'/products/' + product.id}>
-                                                    <img src={product.thumbnail}
-                                                         alt={product.name}
-                                                         className="img-fluid"/></a>
+                                                    <img src={`http://127.0.0.1:8000${product.thumbnail}`}
+                                                        alt={product.name}
+                                                        className="img-fluid" />
+                                                </a>
                                             </figure>
+
                                             <div className="block-4-text p-4">
                                                 <h3><a className="text_truncate_2_ "
-                                                       href={'/products/' + product.id}>{product.name}</a></h3>
+                                                    href={'/products/' + product.id}>{product.name}</a></h3>
                                                 <p className="mb-0 text_truncate_2_"
-                                                   dangerouslySetInnerHTML={{__html: product.short_description}}></p>
+                                                    dangerouslySetInnerHTML={{ __html: product.short_description }}></p>
 
                                                 <p className="text-danger font-weight-bold">
                                                     {ConvertNumber(product.sale_price || 50)}
@@ -238,7 +240,7 @@ function ProductList() {
                                                 <a href="#" onClick={() => handleClick(currentPage - 1)}>&lt;</a>
                                             </li>
 
-                                            {Array.from({length: totalPages}, (_, i) => (
+                                            {Array.from({ length: totalPages }, (_, i) => (
                                                 <li key={i + 1} className={currentPage === i + 1 ? "active" : ""}>
                                                     <a href="#" onClick={() => handleClick(i + 1)}>{i + 1}</a>
                                                 </li>
@@ -261,8 +263,8 @@ function ProductList() {
                                         categories.map((category) => (
                                             <li className="mb-1" key={category.id}>
                                                 <a href={'/products?category=' + category.id} data-id={category.id}
-                                                   className={`d-flex category${category_param}`}
-                                                   onClick={(event) => goCategory(event, category.id)}>
+                                                    className={`d-flex category${category_param}`}
+                                                    onClick={(event) => goCategory(event, category.id)}>
                                                     <span>{category.name}</span>
                                                     <span className="text-black ml-auto">({category.count})</span>
                                                 </a>
@@ -277,10 +279,10 @@ function ProductList() {
                                     <h3 className="mb-3 h6 text-uppercase text-black d-block">Lọc theo giá</h3>
                                     <div className="form-group d-flex align-items-center justify-content-between gap-3">
                                         <input type="number" name="min-price" id="min-price" min="0"
-                                               className="form-control border"/>
+                                            className="form-control border" />
                                         <span>-</span>
                                         <input type="number" name="max-price" id="max-price" min="1"
-                                               className="form-control border"/>
+                                            className="form-control border" />
                                     </div>
                                 </div>
 
@@ -293,20 +295,20 @@ function ProductList() {
                                                     {
                                                         attribute.properties.map((property) => (
                                                             <label htmlFor={`property_${property.id}`} className="d-flex"
-                                                                   key={property.id}>
+                                                                key={property.id}>
                                                                 <input type="checkbox" id={`property_${property.id}`}
-                                                                       className="mr-2 mt-1 property_val"
-                                                                       value={property.id}/>
+                                                                    className="mr-2 mt-1 property_val"
+                                                                    value={property.id} />
                                                                 <span className="text-black">{property.name}</span>
                                                                 <span>
                                                                     <img className="ms-1" src={property.thumbnail}
-                                                                         alt="" width="15px" height="15px"
-                                                                         style={{
-                                                                             width: '15px',
-                                                                             height: '15px',
-                                                                             objectFit: 'cover',
-                                                                             borderRadius: '50%'
-                                                                         }}/>
+                                                                        alt="" width="15px" height="15px"
+                                                                        style={{
+                                                                            width: '15px',
+                                                                            height: '15px',
+                                                                            objectFit: 'cover',
+                                                                            borderRadius: '50%'
+                                                                        }} />
                                                                 </span>
                                                             </label>
                                                         ))
@@ -319,7 +321,7 @@ function ProductList() {
 
                                 <div className="mb-4">
                                     <button className="btn btn-primary w-100" type="button"
-                                            onClick={searchProduct}>Áp dụng
+                                        onClick={searchProduct}>Áp dụng
                                     </button>
                                 </div>
                             </div>
@@ -327,7 +329,7 @@ function ProductList() {
                     </div>
                 </div>
             </div>
-            <Footer/>
+            <Footer />
         </div>
     )
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\restapi\admin\AdminAttributeApi;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\restapi\admin\AdminCategoryApi;
+use App\Http\Controllers\restapi\admin\AdminOrderApi;
 use App\Http\Controllers\restapi\admin\AdminPropertyApi;
 use App\Http\Controllers\restapi\admin\AdminProductApi;
 
@@ -36,4 +37,10 @@ Route::group(['prefix' => 'products'], function () {
     Route::post('create', [AdminProductApi::class, 'create'])->name('api.admin.products.create');
     Route::post('update/{id}', [AdminProductApi::class, 'update'])->name('api.admin.products.update');
     Route::delete('delete/{id}', [AdminProductApi::class, 'delete'])->name('api.admin.products.delete');
+});
+
+Route::group(['prefix' => 'orders'], function () {
+    Route::get('list', [AdminOrderApi::class, 'list'])->name('api.admin.orders.list');
+    Route::get('detail/{id}', [AdminOrderApi::class, 'detail'])->name('api.admin.orders.detail');
+    Route::post('update/{id}', [AdminOrderApi::class, 'update'])->name('api.admin.orders.update');
 });
