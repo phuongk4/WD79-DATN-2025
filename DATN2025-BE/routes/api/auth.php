@@ -4,14 +4,7 @@
     use App\Http\Controllers\restapi\CheckoutApi;
     use App\Http\Controllers\restapi\OrderApi;
     use Illuminate\Support\Facades\Route;
-    use App\Http\Controllers\restapi\UserApi;
-
-
-    Route::group(['prefix' => 'users'], function () {
-        Route::get('get-info', [UserApi::class, 'getUserFromToken'])->name('api.auth.users.information');
-        Route::post('update-info', [UserApi::class, 'updateInfo'])->name('api.auth.users.update');
-        Route::post('change-password', [UserApi::class, 'changePassword'])->name('api.auth.users.change.password');
-    });
+    
 
     Route::group(['prefix' => 'carts'], function () {
         Route::get('list', [CartApi::class, 'list'])->name('api.auth.carts.list');
