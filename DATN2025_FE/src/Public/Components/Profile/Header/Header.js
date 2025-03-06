@@ -87,7 +87,7 @@ function Header() {
                 <div className="d-flex align-items-center justify-content-between">
                     <Link to="/" className="logo d-flex align-items-center">
                         <img src="/assets/admin/img/logo.png" alt=""/>
-                        <span className="d-none d-lg-block">Men's Fashion</span>
+                        <span className="d-none d-lg-block">SOLEVIBE</span>
                     </Link>
                     <i className="bi bi-list toggle-sidebar-btn" onClick={hiddenOrShow}></i>
                 </div>
