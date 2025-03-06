@@ -93,22 +93,6 @@ function Sidebar() {
                             </li>
                         </ul>
                     </li>
-
-                    <li className="nav-item">
-                        <a className="nav-link collapsed" data-bs-target="#order-nav" data-bs-toggle="collapse"
-                           href="#">
-                            <i className="bi bi-newspaper"></i><span>Quản lí đơn hàng</span><i
-                            className="bi bi-chevron-down ms-auto"></i>
-                        </a>
-                        <ul id="order-nav" className="nav-content collapse " data-bs-parent="#sidebar-nav">
-                            <li>
-                                <a href="/admin/orders/list">
-                                    <i className="bi bi-circle"></i><span>Danh sách đơn hàng</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    
                     <li className="nav-heading">Trang</li>
 
                     <li className="nav-item">
