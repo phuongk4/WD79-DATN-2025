@@ -326,6 +326,694 @@
                 }
             }
         },
+        "/api/carts/list": {
+            "get": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Get list cart",
+                "description": "Get list cart",
+                "operationId": "a4e594e2b372caa1bf732b2b4908fc94",
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "200": {
+                        "description": "Success"
+                    },
+                    "400": {
+                        "description": "Error"
+                    }
+                }
+            }
+        },
+        "/api/carts/add": {
+            "post": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Add to cart",
+                "description": "Add to cart",
+                "operationId": "cc502f258f357a2b831d0b071dcafba9",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "product_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "quantity": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "values": {
+                                        "description": "Json string, example: [[{attribute_item: 1, property_item: 1}, {attribute_item: 2, property_item: 2}]]",
+                                        "type": "string",
+                                        "example": ""
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Product not found!"
+                    },
+                    "200": {
+                        "description": "Success"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/carts/change-quantity/{id}": {
+            "put": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Change quantity of a product in cart",
+                "description": "Change quantity of a product in cart",
+                "operationId": "de0920daa6a875a6b48ced9bf66c197f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Cart ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "quantity": {
+                                        "description": "Quantity of product",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Cart not found!"
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/carts/remove/{id}": {
+            "post": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Remove cart",
+                "description": "Remove cart",
+                "operationId": "3b47e7df0bff6fb0fbd9e559e212e948",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "id",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "400": {
+                        "description": "Invalid ID supplied"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/carts/clear": {
+            "post": {
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Clear cart",
+                "description": "Clear cart",
+                "operationId": "5aaab3f155af89598fbd69a62c079fe5",
+                "responses": {
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "200": {
+                        "description": "Clear success"
+                    },
+                    "400": {
+                        "description": "Error"
+                    }
+                }
+            }
+        },
+        "/api/checkout": {
+            "post": {
+                "tags": [
+                    "Checkout"
+                ],
+                "summary": "Checkout",
+                "operationId": "e5f8e671895f54212329d9f0f90f823b",
+                "requestBody": {
+                    "description": "Send order info",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "_token": {
+                                        "type": "string",
+                                        "example": "token"
+                                    },
+                                    "full_name": {
+                                        "type": "string",
+                                        "example": "Nguyen Van A"
+                                    },
+                                    "c_email_address": {
+                                        "type": "string",
+                                        "example": "nguyenvana@gmail.com"
+                                    },
+                                    "c_phone": {
+                                        "type": "string",
+                                        "example": "0909090909"
+                                    },
+                                    "c_address": {
+                                        "type": "string",
+                                        "example": "Ha Noi"
+                                    },
+                                    "d_address": {
+                                        "type": "string",
+                                        "example": "Ho Chi Minh"
+                                    },
+                                    "order_method": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "user_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "c_total_product": {
+                                        "type": "integer",
+                                        "example": 100000
+                                    },
+                                    "c_shipping_price": {
+                                        "type": "integer",
+                                        "example": 100000
+                                    },
+                                    "c_discount_price": {
+                                        "type": "integer",
+                                        "example": 100000
+                                    },
+                                    "c_total": {
+                                        "type": "integer",
+                                        "example": 100000
+                                    },
+                                    "c_order_notes": {
+                                        "type": "string",
+                                        "example": "abc"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Checkout successfully!"
+                    },
+                    "400": {
+                        "description": "Checkout error!"
+                    }
+                }
+            }
+        },
+        "/api/return_checkout_vnpay": {
+            "post": {
+                "tags": [
+                    "Checkout"
+                ],
+                "summary": "Checkout",
+                "operationId": "f5cf3ef1400baf1e72cace383a5e45dd",
+                "requestBody": {
+                    "description": "Send order info",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "_token": {
+                                        "type": "string",
+                                        "example": "token"
+                                    },
+                                    "full_name": {
+                                        "type": "string",
+                                        "example": "Nguyen Van A"
+                                    },
+                                    "c_email_address": {
+                                        "type": "string",
+                                        "example": "nguyenvana@gmail.com"
+                                    },
+                                    "c_phone": {
+                                        "type": "string",
+                                        "example": "0909090909"
+                                    },
+                                    "c_address": {
+                                        "type": "string",
+                                        "example": "Ha Noi"
+                                    },
+                                    "d_address": {
+                                        "type": "string",
+                                        "example": "Ho Chi Minh"
+                                    },
+                                    "order_method": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "user_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "c_total_product": {
+                                        "type": "integer",
+                                        "example": 100000
+                                    },
+                                    "c_shipping_price": {
+                                        "type": "integer",
+                                        "example": 100000
+                                    },
+                                    "c_discount_price": {
+                                        "type": "integer",
+                                        "example": 100000
+                                    },
+                                    "c_total": {
+                                        "type": "integer",
+                                        "example": 100000
+                                    },
+                                    "c_order_notes": {
+                                        "type": "string",
+                                        "example": "abc"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Checkout successfully!"
+                    },
+                    "400": {
+                        "description": "Checkout error!"
+                    }
+                }
+            }
+        },
+        "/api/checkout_vnpay": {
+            "post": {
+                "tags": [
+                    "Checkout"
+                ],
+                "summary": "Checkout using VNPay",
+                "description": "Checkout by VNPay",
+                "operationId": "908e40d5a7f30867a91baee936b5ffb3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "description": "Recipient email address.",
+                                        "type": "string",
+                                        "example": "user@example.com"
+                                    },
+                                    "c_total": {
+                                        "description": "Total amount for the order, in VND.",
+                                        "type": "integer",
+                                        "example": 100000
+                                    },
+                                    "_token": {
+                                        "description": "CSRF token for security.",
+                                        "type": "string",
+                                        "example": "abcdef123456"
+                                    },
+                                    "full_name": {
+                                        "description": "Full name of the customer.",
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "c_email_address": {
+                                        "description": "Customer's email address.",
+                                        "type": "string",
+                                        "example": "john.doe@example.com"
+                                    },
+                                    "c_phone": {
+                                        "description": "Customer's phone number.",
+                                        "type": "string",
+                                        "example": "0912345678"
+                                    },
+                                    "c_address": {
+                                        "description": "Billing address of the customer.",
+                                        "type": "string",
+                                        "example": "123 Main St, Hanoi"
+                                    },
+                                    "d_address": {
+                                        "description": "Delivery address.",
+                                        "type": "string",
+                                        "example": "456 Elm St, Hanoi"
+                                    },
+                                    "c_total_product": {
+                                        "description": "Total price of products.",
+                                        "type": "integer",
+                                        "example": 90000
+                                    },
+                                    "c_shipping_price": {
+                                        "description": "Shipping price.",
+                                        "type": "integer",
+                                        "example": 5000
+                                    },
+                                    "c_discount_price": {
+                                        "description": "Discount applied to the order.",
+                                        "type": "integer",
+                                        "example": 5000
+                                    },
+                                    "c_order_notes": {
+                                        "description": "Additional notes about the order.",
+                                        "type": "string",
+                                        "example": "Leave package at the front door."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "400": {
+                        "description": "Bad request."
+                    },
+                    "401": {
+                        "description": "Unauthorized."
+                    },
+                    "404": {
+                        "description": "Order not found."
+                    },
+                    "200": {
+                        "description": "Success."
+                    },
+                    "500": {
+                        "description": "Internal Server Error."
+                    }
+                }
+            }
+        },
+        "/api/orders/list": {
+            "get": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get list of orders",
+                "description": "Get list of orders",
+                "operationId": "990c7f780c268e9aa0256c847c26f004",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Order status",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "processing",
+                                "shipping",
+                                "delivered",
+                                "canceled",
+                                "deleted"
+                            ]
+                        },
+                        "example": "processing"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                }
+            }
+        },
+        "/api/orders/detail/{id}": {
+            "get": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get detail of an order",
+                "description": "Get detail of an order",
+                "operationId": "c2feeb79d54f7987626482f8f9684ac4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Order ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    },
+                    "404": {
+                        "description": "Order not found"
+                    }
+                }
+            }
+        },
+        "/api/orders/cancel/{id}": {
+            "get": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Cancel an order",
+                "description": "Cancel an order",
+                "operationId": "5946a6eef8a01542f0a4db5461395a0d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Order ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    },
+                    "404": {
+                        "description": "Order not found"
+                    }
+                }
+            }
+        },
+        "/api/products/list": {
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Get list of products",
+                "description": "Get list of products",
+                "operationId": "5483eb7cecc3c33076a57e82ddc1f3db",
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                }
+            }
+        },
+        "/api/products/detail/{id}": {
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Get detail of a product",
+                "description": "Get detail of a product",
+                "operationId": "60a0239fa43acb702fd8e767cb8e4683",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    },
+                    "404": {
+                        "description": "Product not found"
+                    }
+                }
+            }
+        },
+        "/api/products/search": {
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Search products",
+                "description": "Search products",
+                "operationId": "6b37e664ea67a748190f4753687fd433",
+                "parameters": [
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "description": "Category ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "min_price",
+                        "in": "query",
+                        "description": "Minimum price",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "max_price",
+                        "in": "query",
+                        "description": "Maximum price",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "keyword",
+                        "in": "query",
+                        "description": "Keyword",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "option",
+                        "in": "query",
+                        "description": "Option",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "Size",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Sort",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "order_by",
+                        "in": "query",
+                        "description": "Order by",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                }
+            }
+        },
         "/api/properties/list": {
             "get": {
                 "tags": [
@@ -774,6 +1462,446 @@
                 }
             }
         },
+        "/api/admin/orders/list": {
+            "get": {
+                "tags": [
+                    "Admin Order"
+                ],
+                "summary": "Get list of orders",
+                "description": "Get list of orders",
+                "operationId": "6545b4f9863c314434c9360c75aa036d",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Order status",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "processing",
+                                "shipping",
+                                "delivered",
+                                "canceled",
+                                "deleted"
+                            ]
+                        },
+                        "example": "processing"
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "description": "User id",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                }
+            }
+        },
+        "/api/admin/orders/detail/{id}": {
+            "get": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get detail of an order",
+                "description": "Get detail of an order",
+                "operationId": "8416cae55f81e386d8c6c403c8348e10",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Order ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    },
+                    "404": {
+                        "description": "Order not found"
+                    }
+                }
+            }
+        },
+        "/api/admin/orders/update/{id}": {
+            "put": {
+                "tags": [
+                    "Admin Order"
+                ],
+                "summary": "Update order status",
+                "description": "Update order status",
+                "operationId": "292014594beb6c22bb9ce3971bf07a46",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Order ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Order status",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "canceled",
+                                "completed"
+                            ]
+                        },
+                        "example": "canceled"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "404": {
+                        "description": "Order not found"
+                    }
+                }
+            }
+        },
+        "/api/admin/products/list": {
+            "get": {
+                "tags": [
+                    "Admin Product"
+                ],
+                "summary": "Get list of products",
+                "description": "Get list of products",
+                "operationId": "524cc2ddadf5a76ec7207338c1deffb2",
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                }
+            }
+        },
+        "/api/admin/products/detail/{id}": {
+            "get": {
+                "tags": [
+                    "Admin Product"
+                ],
+                "summary": "Get detail of a product",
+                "description": "Get detail of a product",
+                "operationId": "1f24db3412602c3adb8f3781fbb9b727",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    },
+                    "404": {
+                        "description": "Product not found"
+                    }
+                }
+            }
+        },
+        "/api/admin/products/create": {
+            "post": {
+                "tags": [
+                    "Admin Product"
+                ],
+                "summary": "Create product",
+                "description": "Create a new product",
+                "operationId": "133be1e44de223e0af7faceb8ac3996a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "description": "Name of the product",
+                                        "type": "string",
+                                        "example": "Sample Product"
+                                    },
+                                    "short_description": {
+                                        "description": "Short description of the product",
+                                        "type": "string",
+                                        "example": "This is a short description."
+                                    },
+                                    "description": {
+                                        "description": "Detailed description of the product",
+                                        "type": "string",
+                                        "example": "This is a detailed description of the product."
+                                    },
+                                    "parent_id": {
+                                        "description": "Category ID for the product",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "thumbnail": {
+                                        "description": "Thumbnail image of the product",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "gallery": {
+                                        "description": "Gallery images of the product",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    },
+                                    "price": {
+                                        "description": "Price of the product",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 19.99
+                                    },
+                                    "sale_price": {
+                                        "description": "Sale price of the product",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 14.99
+                                    },
+                                    "quantity": {
+                                        "description": "Quantity of the product",
+                                        "type": "integer",
+                                        "example": 100
+                                    },
+                                    "status": {
+                                        "description": "Status of the product (e.g., available, out of stock)",
+                                        "type": "integer",
+                                        "enum": [
+                                            1,
+                                            2,
+                                            3
+                                        ],
+                                        "example": 1
+                                    },
+                                    "data_options": {
+                                        "description": "The options of the product",
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "quantity": {
+                                                    "description": "The quantity of the option",
+                                                    "type": "integer"
+                                                },
+                                                "price": {
+                                                    "description": "The price of the option",
+                                                    "type": "number",
+                                                    "format": "float"
+                                                },
+                                                "sale_price": {
+                                                    "description": "The sale price of the option",
+                                                    "type": "number",
+                                                    "format": "float"
+                                                },
+                                                "description": {
+                                                    "description": "The description of the option",
+                                                    "type": "string"
+                                                },
+                                                "data_images": {
+                                                    "description": "The images of the option",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "format": "binary"
+                                                    }
+                                                },
+                                                "_options": {
+                                                    "description": "The values of the option",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Product created successfully"
+                    },
+                    "400": {
+                        "description": "Invalid input data"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/admin/products/update/{id}": {
+            "put": {
+                "tags": [
+                    "Admin Product"
+                ],
+                "summary": "Update product",
+                "description": "Update an existing product",
+                "operationId": "fbee7df00b58c33b4ddb0c43b9bb2ecf",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "description": "Name of the product",
+                                        "type": "string"
+                                    },
+                                    "short_description": {
+                                        "description": "Short description of the product",
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "description": "Detailed description of the product",
+                                        "type": "string"
+                                    },
+                                    "parent_id": {
+                                        "description": "Category ID",
+                                        "type": "integer"
+                                    },
+                                    "thumbnail": {
+                                        "description": "Thumbnail image of the product",
+                                        "type": "file",
+                                        "format": "binary"
+                                    },
+                                    "gallery": {
+                                        "description": "Gallery images of the product",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    },
+                                    "price": {
+                                        "description": "Price of the product",
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "sale_price": {
+                                        "description": "Sale price of the product",
+                                        "type": "number",
+                                        "format": "float"
+                                    },
+                                    "quantity": {
+                                        "description": "Quantity of the product",
+                                        "type": "integer"
+                                    },
+                                    "status": {
+                                        "description": "Status of the product (e.g., available, out of stock)",
+                                        "type": "integer",
+                                        "enum": [
+                                            1,
+                                            2,
+                                            3
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Product not found"
+                    }
+                }
+            }
+        },
+        "/api/admin/products/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "Admin Product"
+                ],
+                "summary": "Delete a product",
+                "description": "Delete a product",
+                "operationId": "7aba7483555bca00f129913eaad08809",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                }
+            }
+        },
         "/api/admin/properties/list": {
             "get": {
                 "tags": [
@@ -996,6 +2124,22 @@
             "description": "Auth"
         },
         {
+            "name": "Cart",
+            "description": "Cart"
+        },
+        {
+            "name": "Checkout",
+            "description": "Checkout"
+        },
+        {
+            "name": "Order",
+            "description": "Order"
+        },
+        {
+            "name": "Product",
+            "description": "Product"
+        },
+        {
             "name": "Property",
             "description": "Property"
         },
@@ -1006,6 +2150,14 @@
         {
             "name": "Admin Category",
             "description": "Admin Category"
+        },
+        {
+            "name": "Admin Order",
+            "description": "Admin Order"
+        },
+        {
+            "name": "Admin Product",
+            "description": "Admin Product"
         },
         {
             "name": "Admin Property",
