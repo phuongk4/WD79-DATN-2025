@@ -11,6 +11,7 @@ import ChangePassword from "./Components/Account/ForgotPassword/ChangePassword";
 import Home from './Components/Home/Home';
 import ProductList from './Components/Shop/ProductList/ProductList';
 import ProductDetail from './Components/Shop/ProductDetail/ProductDetail';
+import Result from './Components/Shop/Result/Result';
 import Cart from './Components/Cart/Cart';
 /* Error Page */
 import NotFound from "./Components/Shared/Error/Error404";
@@ -58,6 +59,7 @@ function Public() {
                 <Route path='/' element={<Home/>}/>
                 <Route path='/products' element={<ProductList/>}/>
                 <Route path='/products/:id' element={<ProductDetail/>}/>
+                <Route path='/products/search' element={<Result/>}/>
                 <Route path='/cart' element={<Cart/>}/>
                 {/* Admin Page */}
                 <Route path='/admin/dashboard' element={<Dashboard/>}/>
