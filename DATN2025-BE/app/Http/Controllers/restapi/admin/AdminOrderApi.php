@@ -4,10 +4,12 @@ namespace App\Http\Controllers\restapi\admin;
 
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Api;
+use App\Models\OrderHistories;
 use App\Models\OrderItems;
 use App\Models\Orders;
 use App\Models\ProductOptions;
 use App\Models\Products;
+use App\Models\Revenues;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use OpenApi\Annotations as OA;
@@ -238,6 +240,25 @@ class AdminOrderApi extends Api
                     $option->save();
                 });
             }
+
+            if ($status == OrderStatus::COMPLETED) {
+                $revenue = new Revenues();
+                $revenue->total = $order->total_price;
+                $revenue->order_id = $order->id;
+
+                $revenue->date = Carbon::now()->day;
+                $revenue->month = Carbon::now()->month;
+                $revenue->year = Carbon::now()->year;
+
+                $revenue->save();
+            }
+
+            $order_history = new OrderHistories();
+            $order_history->order_id = $order->id;
+            $order_history->status = $status;
+            $order_history->notes = $order->reason_cancel;
+            $order_history->user_id = $this->user['id'];
+            $order_history->save();
 
             $data = returnMessage(1, $order, 'Update order success');
             return response($data, 200);

@@ -1,13 +1,13 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import Header from "../Shared/Client/Header/Header";
 import Footer from "../Shared/Client/Footer/Footer";
-import {useLocation} from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import $ from 'jquery';
 import orderService from "../Service/OrderService";
-import {message} from "antd";
+import { message } from "antd";
 
 function ConfirmCheckout() {
-    const {search} = useLocation();
+    const { search } = useLocation();
     const queryParams = new URLSearchParams(search);
 
     // Convert query parameters to an object
@@ -18,7 +18,7 @@ function ConfirmCheckout() {
 
     const vnp_ResponseCode = queryParamsObj['vnp_ResponseCode'];
 
-    const loadingPage = async () => {
+    const loadingPage = async() => {
         let html = ``;
         let title = ``;
         switch (vnp_ResponseCode) {
@@ -52,7 +52,7 @@ function ConfirmCheckout() {
     };
 
 
-    const createOrder = async () => {
+    const createOrder = async() => {
         let order_info = localStorage.getItem('order_info')
         let data = JSON.parse(order_info)
         await orderService.createOrder(data)
@@ -71,29 +71,42 @@ function ConfirmCheckout() {
         loadingPage();
     }, [])
 
-    return (
-        <div className="site-wrap">
-            <Header/>
-            <div className="bg-light py-3">
-                <div className="container">
-                    <div className="row">
-                        <div className="col-md-12 mb-0"><a href="/">Trang chủ</a> <span
-                            className="mx-2 mb-0">/</span> <strong className="text-black" id="title"></strong>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    return ( <
+        div className = "site-wrap" >
+        <
+        Header / >
+        <
+        div className = "bg-light py-3" >
+        <
+        div className = "container" >
+        <
+        div className = "row" >
+        <
+        div className = "col-md-12 mb-0" > < a href = "/" > Trang chủ < /a> <span
+        className = "mx-2 mb-0" > /</span > < strong className = "text-black"
+        id = "title" > < /strong> < /
+        div > <
+        /div> < /
+        div > <
+        /div>
 
-            <div className="site-section">
-                <div className="container">
-                    <div className="row" id="content">
+        <
+        div className = "site-section" >
+        <
+        div className = "container" >
+        <
+        div className = "row"
+        id = "content" >
 
-                    </div>
-                </div>
-            </div>
+        <
+        /div> < /
+        div > <
+        /div>
 
-            <Footer/>
-        </div>
+        <
+        Footer / >
+        <
+        /div>
     )
 }
 
