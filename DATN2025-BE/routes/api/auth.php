@@ -2,9 +2,13 @@
 
     use App\Http\Controllers\restapi\CartApi;
     use App\Http\Controllers\restapi\CheckoutApi;
-    use App\Http\Controllers\restapi\OrderApi;
-    use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\restapi\MyCouponApi;
+use App\Http\Controllers\restapi\OrderApi;
+use App\Http\Controllers\restapi\OrderHistoryApi;
+use Illuminate\Support\Facades\Route;
     use App\Http\Controllers\restapi\UserApi;
+use App\Models\MyCoupons;
+use App\Models\OrderHistories;
 
     Route::group(['prefix' => 'users'], function () {
         Route::get('get-info', [UserApi::class, 'getUserFromToken'])->name('api.auth.users.information');
@@ -30,4 +34,14 @@
         Route::post('create', [CheckoutApi::class, 'checkout'])->name('api.auth.checkout');
         Route::post('checkout_vnpay', [CheckoutApi::class, 'checkoutByVNPay'])->name('api.auth.checkout.vnpay');
         Route::post('return_checkout_vnpay', [CheckoutApi::class, 'returnCheckout'])->name('api.auth.checkout.return');
+    });
+    Route::group(['prefix' => 'my-coupons'], function () {
+        Route::get('list', [MyCouponApi::class, 'list'])->name('api.auth.my.coupons.list');
+        Route::get('detail', [MyCouponApi::class, 'detail'])->name('api.auth.my.coupons.detail');
+        Route::get('search', [MyCouponApi::class, 'search'])->name('api.auth.my.coupons.search');
+        Route::post('save', [MyCouponApi::class, 'saveCoupon'])->name('api.auth.my.coupons.save');
+        Route::delete('delete', [MyCouponApi::class, 'delete'])->name('api.auth.my.coupons.delete');
+    });
+    Route::group(['prefix' => 'order-histories'], function () {
+        Route::get('list', [OrderHistoryApi::class, 'list'])->name('api.auth.order.histories.list');
     });

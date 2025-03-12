@@ -2,13 +2,19 @@
 
 namespace App\Http\Controllers\restapi;
 
+use App\Enums\MyCouponStatus;
 use App\Enums\OrderMethod;
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Api;
+use App\Http\Controllers\Controller;
 use App\Models\Carts;
+use App\Models\Coupons;
+use App\Models\MyCoupons;
 use App\Models\OrderItems;
 use App\Models\Orders;
 use App\Models\ProductOptions;
+use App\Models\Products;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use OpenApi\Annotations as OA;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -407,8 +413,25 @@ class CheckoutApi extends Api
         $order->status = $status;
 
         $order->user_id = $user_id;
+        $order->coupon_id = $coupon_id != "" ? $coupon_id : null;
 
         $order_created = $order->save();
+
+        $coupon = Coupons::find($coupon_id);
+        if ($coupon) {
+            $coupon->number_used = (int)$coupon->number_used + 1;
+            $coupon->save();
+        }
+
+        $myCoupon = MyCoupons::where('user_id', $user_id)
+            ->where('coupon_id', $coupon_id)
+            ->where('status', MyCouponStatus::UNUSED)
+            ->first();
+
+        if ($myCoupon) {
+            $myCoupon->status = MyCouponStatus::USED;
+            $myCoupon->save();
+        }
 
         foreach ($carts as $cart) {
             $order_item = new OrderItems();
@@ -434,7 +457,9 @@ class CheckoutApi extends Api
 
             $option->quantity -= $cart->quantity;
             $option->save();
+
         }
+
         return $order_created;
     }
 }
