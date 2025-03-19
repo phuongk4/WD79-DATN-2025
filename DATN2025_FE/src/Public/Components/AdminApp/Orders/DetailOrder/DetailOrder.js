@@ -179,7 +179,7 @@ function DetailOrder() {
                             <div className="card-body">
                                 <h5 className="card-title">Chi tiết đơn hàng</h5>
                                 <div className="row mb-5">
-                                    <div className="col-md-6">
+                                    <div className="col-md-4">
                                         <div className="p-3 border">
                                             <table className="table site-block-order-table mb-5">
                                                 <colgroup>
@@ -275,7 +275,7 @@ function DetailOrder() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="col-md-6">
+                                    <div className="col-md-8">
                                         <div className="p-3 p-lg-5 border">
                                             <table className="table mb-4">
                                                 <thead>
@@ -315,18 +315,60 @@ function DetailOrder() {
                                                 onChange={handleTableChange}
                                             />
                                         </div>
-                                        <div className="row">
-                                            <div className="form-group col-md-6">
-                                                <label htmlFor="totalStatus">Các trạng thái đơn hàng:</label>
-                                                <select id="totalStatus" className="form-control">
-                                                    <option value="1">ĐANG XỬ LÝ</option>
-                                                    <option value="2">ĐANG CHỜ THANH TOÁN</option>
-                                                    <option value="3">ĐANG VẬN CHUYỂN</option>
-                                                    <option value="4">ĐÃ GIAO HÀNG</option>
-                                                    <option value="5">ĐÃ HOÀN THÀNH</option>
-                                                    <option value="6">ĐÃ HỦY</option>
-                                                </select>
+
+                                        <div className="row mt-3 mb-4">
+                                            <div id="bar-progress" className="mt-5 mt-lg-0">
+                                                <div
+                                                    className={"step " + (order.status === 'CHỜ XÁC NHẬN' ? 'step-active' : '')}>
+                                                    <span className="number-container">
+                                                        <span className="number">1</span>
+                                                    </span>
+                                                    <h5>CHỜ XÁC NHẬN</h5>
+                                                </div>
+                                                <div className="seperator"></div>
+                                                <div
+                                                    className={"step " + (order.status === 'ĐANG XỬ LÝ' ? 'step-active' : '')}>
+                                                    <span className="number-container">
+                                                        <span className="number">2</span>
+                                                    </span>
+                                                    <h5>ĐANG XỬ LÝ</h5>
+                                                </div>
+                                                <div className="seperator"></div>
+                                                <div
+                                                    className={"step " + (order.status === 'ĐÃ XÁC NHẬN' ? 'step-active' : '')}>
+                                                    <span className="number-container">
+                                                        <span className="number">3</span>
+                                                    </span>
+                                                    <h5>ĐÃ XÁC NHẬN</h5>
+                                                </div>
+                                                <div className="seperator"></div>
+                                                <div
+                                                    className={"step " + (order.status === 'ĐANG VẬN CHUYỂN' ? 'step-active' : '')}>
+                                                    <span className="number-container">
+                                                        <span className="number">4</span>
+                                                    </span>
+                                                    <h5>ĐANG VẬN CHUYỂN</h5>
+                                                </div>
+                                                <div className="seperator"></div>
+                                                <div
+                                                    className={"step " + (order.status === 'ĐÃ GIAO HÀNG' ? 'step-active' : '')}>
+                                                    <span className="number-container">
+                                                        <span className="number">5</span>
+                                                    </span>
+                                                    <h5>ĐÃ GIAO HÀNG</h5>
+                                                </div>
+                                                <div className="seperator"></div>
+                                                <div
+                                                    className={"step " + (order.status === 'ĐÃ HOÀN THÀNH' ? 'step-active' : '')}>
+                                                    <span className="number-container">
+                                                        <span className="number">6</span>
+                                                    </span>
+                                                    <h5>ĐÃ HOÀN THÀNH</h5>
+                                                </div>
                                             </div>
+                                        </div>
+
+                                        <div className="row">
                                             <div className="form-group col-md-6">
                                                 <label htmlFor="status">Trạng thái</label>
                                                 <select id="status" className="form-control" disabled
@@ -344,11 +386,13 @@ function DetailOrder() {
                                                     Chuyển trạng thái
                                                 </button>
 
-                                                <button type="button" data-bs-toggle="modal"
-                                                        data-bs-target="#exampleModal"
-                                                        className="btn btn-danger mt-3">
-                                                    Hủy đơn hàng
-                                                </button>
+                                                {(order.status === 'CHỜ XÁC NHẬN' || order.status === 'ĐANG XỬ LÝ' || order.status === 'ĐÃ XÁC NHẬN') && (
+                                                    <button type="button" data-bs-toggle="modal"
+                                                            data-bs-target="#exampleModal"
+                                                            className="btn btn-danger mt-3">
+                                                        Hủy đơn hàng
+                                                    </button>
+                                                )}
                                             </div>)}
                                         {order.reason_cancel && (<>
                                             <h5 className="mt-2 ">Lý do huỷ đơn hàng:</h5>
