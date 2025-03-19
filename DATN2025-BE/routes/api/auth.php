@@ -5,6 +5,7 @@
 use App\Http\Controllers\restapi\MyCouponApi;
 use App\Http\Controllers\restapi\OrderApi;
 use App\Http\Controllers\restapi\OrderHistoryApi;
+use App\Http\Controllers\restapi\ReviewProductApi;
 use Illuminate\Support\Facades\Route;
     use App\Http\Controllers\restapi\UserApi;
 use App\Models\MyCoupons;
@@ -44,4 +45,8 @@ use App\Models\OrderHistories;
     });
     Route::group(['prefix' => 'order-histories'], function () {
         Route::get('list', [OrderHistoryApi::class, 'list'])->name('api.auth.order.histories.list');
+    });
+    Route::group(['prefix' => 'reviews'], function () {
+        Route::post('create', [ReviewProductApi::class, 'store'])->name('api.auth.reviews.store');
+        Route::get('check', [ReviewProductApi::class, 'check'])->name('api.restapi.reviews.check');
     });
