@@ -23,7 +23,12 @@ function Sidebar() {
                         </a>
                     </li>
 
-                  
+                    <li className="nav-item">
+                        <a className="nav-link collapsed" href="/my-coupon">
+                            <i className="bi bi-magnet"></i>
+                            <span>Mã giảm giá của tôi</span>
+                        </a>
+                    </li>
 
                     {/*<li className="nav-item">*/}
                     {/*    <a className="nav-link collapsed" href="/product-favourites">*/}

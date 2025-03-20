@@ -5,6 +5,7 @@ import orderService from '../Service/OrderService';
 import Header from "../Shared/Client/Header/Header";
 import Footer from "../Shared/Client/Footer/Footer";
 import cartService from "../Service/CartService";
+import couponService from "../Service/CouponService";
 import $ from "jquery";
 import ConvertNumber from "../Shared/Utils/ConvertNumber";
 import accountService from "../Service/AccountService";
@@ -50,6 +51,26 @@ function Checkout() {
             })
     }
 
+    const getCoupon = async () => {
+        LoadingPage();
+        let code = $('#coupon_code').val().trim();
+        await couponService.searchMyCoupon(code)
+            .then((res) => {
+                if (res.status === 200) {
+                    console.log("coupon", res.data.data)
+                    changeDiscountPrice(res.data.data)
+                    LoadingPage();
+                } else {
+                    alert('Không tìm thấy mã giảm giá hợp lệ')
+                    LoadingPage();
+                }
+            })
+            .catch((err) => {
+                alert('Không tìm thấy mã giảm giá hợp lệ')
+                LoadingPage();
+                console.log(err);
+            })
+    }
 
     const CheckoutCart = async () => {
         $('#btnCreate').prop('disabled', true).text('Đang đặt hàng...');
@@ -279,6 +300,7 @@ function Checkout() {
                                                aria-describedby="button-addon2"/>
                                         <div className="input-group-append">
                                             <button className="btn btn-primary btn-sm" type="button"
+                                                    onClick={getCoupon}
                                                     id="button-addon2">Xác nhận
                                             </button>
                                         </div>

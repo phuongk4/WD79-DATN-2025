@@ -93,7 +93,7 @@ function Sidebar() {
                             </li>
                         </ul>
                     </li>
-
+                    
                     <li className="nav-item">
                         <a className="nav-link collapsed" data-bs-target="#order-nav" data-bs-toggle="collapse"
                            href="#">
@@ -108,7 +108,28 @@ function Sidebar() {
                             </li>
                         </ul>
                     </li>
-                    
+
+                    <li className="nav-item">
+                        <a className="nav-link collapsed" data-bs-target="#coupons-nav" data-bs-toggle="collapse"
+                           href="#">
+                            <i className="bi bi-code"></i><span>Quản lí giảm giá</span><i
+                            className="bi bi-chevron-down ms-auto"></i>
+                        </a>
+                        <ul id="coupons-nav" className="nav-content collapse " data-bs-parent="#sidebar-nav">
+                            <li>
+                                <a href="/admin/coupons/list">
+                                    <i className="bi bi-circle"></i><span>Danh sách mã giảm giá</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/admin/coupons/create">
+                                    <i className="bi bi-circle"></i><span>Thêm mới mã giảm giá</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+
                     <li className="nav-heading">Trang</li>
 
                     <li className="nav-item">
