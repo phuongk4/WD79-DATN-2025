@@ -41,23 +41,29 @@ class CartApi extends Api
 
                 $val = $item->values;
                 $product_option = ProductOptions::find($val);
-                $dataArray = $product_option->value;
-                $dataArray = json_decode($dataArray, true);
 
                 $dataConvert = [];
-                foreach ($dataArray as $op) {
-                    $attribute = Attributes::find($op['attribute_item']);
-                    $property = Properties::find($op['property_item']);
+                if ($product_option) {
 
-                    $data = [
-                        'attribute' => $attribute->toArray(),
-                        'property' => $property->toArray()
-                    ];
+                    $dataArray = $product_option->value;
+                    $dataArray = json_decode($dataArray, true);
 
-                    $dataConvert[] = $data;
+                    $dataConvert = [];
+                    foreach ($dataArray as $op) {
+                        $attribute = Attributes::find($op['attribute_item']);
+                        $property = Properties::find($op['property_item']);
+
+                        $data = [
+                            'attribute' => $attribute->toArray(),
+                            'property' => $property->toArray()
+                        ];
+
+                        $dataConvert[] = $data;
+                    }
                 }
+
                 $cart['attribute'] = $dataConvert;
-                $cart['product_option'] = $product_option->toArray();
+                $cart['product_option'] = $product_option ? $product_option->toArray() : [];
                 return $cart;
             });
 
