@@ -396,7 +396,7 @@ class CheckoutApi extends Api
         $total = $request->input('c_total');
         $notes = $request->input('c_order_notes');
         $order_method = $request->input('order_method') ?? OrderMethod::IMMEDIATE;
-        $status = OrderStatus::PROCESSING;
+        $status = OrderStatus::PENDING;
 
         $address = $c_address . ', ' . $d_address;
 
