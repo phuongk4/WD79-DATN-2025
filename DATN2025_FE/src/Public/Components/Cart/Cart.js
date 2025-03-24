@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react';
-import {useNavigate, useSearchParams} from 'react-router-dom';
-import {message} from 'antd';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { message } from 'antd';
 import Header from "../Shared/Client/Header/Header";
 import Footer from "../Shared/Client/Footer/Footer";
 import $ from "jquery";
@@ -237,7 +237,7 @@ function Cart() {
     }, [loading]);
 
     return (<div className="site-wrap">
-        <Header/>
+        <Header />
         <div className="bg-light py-3">
             <div className="container">
                 <div className="row">
@@ -261,82 +261,86 @@ function Cart() {
                             ) : (
                                 <table className="table table-bordered">
                                     <colgroup>
-                                        <col width="15%"/>
-                                        <col width="x"/>
-                                        <col width="10%"/>
-                                        <col width="15%"/>
-                                        <col width="10%"/>
-                                        <col width="5%"/>
+                                        <col width="15%" />
+                                        <col width="x" />
+                                        <col width="10%" />
+                                        <col width="15%" />
+                                        <col width="10%" />
+                                        <col width="5%" />
                                     </colgroup>
                                     <thead>
-                                    <tr>
-                                        <th className="product-thumbnail">Hình ảnh</th>
-                                        <th className="product-name">Sản phẩm</th>
-                                        <th className="product-price">Giá</th>
-                                        <th className="product-quantity">Số lượng</th>
-                                        <th className="product-total">Thành tiền</th>
-                                        <th className="product-remove">Xoá</th>
-                                    </tr>
+                                        <tr>
+                                            <th className="product-thumbnail">Hình ảnh</th>
+                                            <th className="product-name">Sản phẩm</th>
+                                            <th className="product-price">Giá</th>
+                                            <th className="product-quantity">Số lượng</th>
+                                            <th className="product-total">Thành tiền</th>
+                                            <th className="product-remove">Xoá</th>
+                                        </tr>
                                     </thead>
                                     <tbody>
-                                    {carts.map((cart, index) => {
-                                        return (<tr key={index}>
-                                            <td className="product-thumbnail">
-                                                <img src={cart.product.thumbnail}
-                                                     alt="Top Up T-Shirt" className="img-fluid"/>
-                                            </td>
-                                            <td className="product-name">
-                                                <h2 className="h5 text-black">{cart.product.name}</h2>
-                                                <div className="list-option mt-2 ">
-                                                    {
-                                                        cart.attribute.map((item1, index1) => {
-                                                            return (
-                                                                <div key={index1}
-                                                                     className="d-flex align-items-center justify-content-start">
-                                                                    <p>{item1.attribute.name}: </p>
-                                                                    <p>{item1.property.name}</p>
-                                                                </div>
-                                                            );
-                                                        })
-                                                    }
-                                                </div>
-                                            </td>
-                                            <td>{ConvertNumber(cart.product_option.sale_price)}</td>
-                                            <td>
-                                                <div className="input-group mb-3">
-                                                    <div className="input-group-prepend">
-                                                        <button className="btn btn-outline-primary js-btn-minus"
+                                        {carts.map((cart, index) => {
+                                            return (<tr key={index}>
+                                                <td className="product-thumbnail">
+                                                    <img
+                                                        src={`http://127.0.0.1:8000${cart.product.thumbnail}`}
+                                                        alt="Top Up T-Shirt"
+                                                        className="img-fluid"
+                                                    />
+                                                </td>
+
+                                                <td className="product-name">
+                                                    <h2 className="h5 text-black">{cart.product.name}</h2>
+                                                    <div className="list-option mt-2 ">
+                                                        {
+                                                            cart.attribute.map((item1, index1) => {
+                                                                return (
+                                                                    <div key={index1}
+                                                                        className="d-flex align-items-center justify-content-start">
+                                                                        <p>{item1.attribute.name}: </p>
+                                                                        <p>{item1.property.name}</p>
+                                                                    </div>
+                                                                );
+                                                            })
+                                                        }
+                                                    </div>
+                                                </td>
+                                                <td>{ConvertNumber(cart.product_option.sale_price)}</td>
+                                                <td>
+                                                    <div className="input-group mb-3">
+                                                        <div className="input-group-prepend">
+                                                            <button className="btn btn-outline-primary js-btn-minus"
                                                                 onClick={(e) => minusQuantity(e.target)}
                                                                 type="button">-
-                                                        </button>
-                                                    </div>
-                                                    <input type="text" className="form-control text-center"
-                                                           style={{width: '30px'}}
-                                                           defaultValue={cart.quantity} id={'inputQuantity' + cart.id}
-                                                           onInput={(e) => checkInput(e.target)}
-                                                           min="1" data-id={cart.id}
-                                                           data-price={cart.product_option.sale_price}
-                                                           aria-label="Quantity"/>
-                                                    <div className="input-group-append">
-                                                        <button className="btn btn-outline-primary js-btn-plus"
+                                                            </button>
+                                                        </div>
+                                                        <input type="text" className="form-control text-center"
+                                                            style={{ width: '30px' }}
+                                                            defaultValue={cart.quantity} id={'inputQuantity' + cart.id}
+                                                            onInput={(e) => checkInput(e.target)}
+                                                            min="1" data-id={cart.id}
+                                                            data-price={cart.product_option.sale_price}
+                                                            aria-label="Quantity" />
+                                                        <div className="input-group-append">
+                                                            <button className="btn btn-outline-primary js-btn-plus"
                                                                 onClick={(e) => plusQuantity(e.target)}
                                                                 type="button">+
-                                                        </button>
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <p className="totalCartItem" id={'totalCartItem' + cart.id}>
-                                                    {ConvertNumber(cart.product_option.sale_price * cart.quantity)}
-                                                </p>
-                                            </td>
-                                            <td>
-                                                <button className="btn btn-danger btn-sm"
+                                                </td>
+                                                <td>
+                                                    <p className="totalCartItem" id={'totalCartItem' + cart.id}>
+                                                        {ConvertNumber(cart.product_option.sale_price * cart.quantity)}
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <button className="btn btn-danger btn-sm"
                                                         onClick={() => removeFromCart(cart.id)}>X
-                                                </button>
-                                            </td>
-                                        </tr>);
-                                    })}
+                                                    </button>
+                                                </td>
+                                            </tr>);
+                                        })}
                                     </tbody>
                                 </table>
                             )}
@@ -425,7 +429,7 @@ function Cart() {
                 </div>
             </div>
         </div>
-        <Footer/>
+        <Footer />
     </div>)
 }
 
