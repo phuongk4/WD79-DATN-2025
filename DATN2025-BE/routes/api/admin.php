@@ -4,10 +4,16 @@ use App\Http\Controllers\restapi\admin\AdminAttributeApi;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\restapi\admin\AdminCategoryApi;
 use App\Http\Controllers\restapi\admin\AdminCouponApi;
+use App\Http\Controllers\restapi\admin\AdminHomeApi;
 use App\Http\Controllers\restapi\admin\AdminOrderApi;
 use App\Http\Controllers\restapi\admin\AdminPropertyApi;
 use App\Http\Controllers\restapi\admin\AdminProductApi;
+use App\Http\Controllers\restapi\admin\AdminRevenueApi;
 use App\Http\Controllers\restapi\admin\AdminReviewProductApi;
+Route::group(['prefix' => ''], function () {
+    Route::get('dashboard', [AdminHomeApi::class, 'dashboard'])->name('api.admin.home.dashboard');
+    Route::get('chart-orders', [AdminHomeApi::class, 'chartOrders'])->name('api.admin.home.chart-orders');
+});
 
 Route::group(['prefix' => 'categories'], function () {
     Route::get('list', [AdminCategoryApi::class, 'list'])->name('api.admin.categories.list');
@@ -58,4 +64,8 @@ Route::group(['prefix' => 'reviews'], function () {
     Route::get('detail/{id}', [AdminReviewProductApi::class, 'detail'])->name('api.admin.reviews.detail');
     Route::put('update/{id}', [AdminReviewProductApi::class, 'update'])->name('api.admin.reviews.update');
     Route::delete('delete/{id}', [AdminReviewProductApi::class, 'delete'])->name('api.admin.reviews.delete');
+});
+Route::group(['prefix' => 'revenues'], function () {
+    Route::get('list', [AdminRevenueApi::class, 'list'])->name('api.admin.revenues.list');
+    Route::get('charts', [AdminRevenueApi::class, 'charts'])->name('api.admin.revenues.charts');
 });

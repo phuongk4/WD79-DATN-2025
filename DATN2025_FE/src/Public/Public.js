@@ -55,6 +55,11 @@ import ListOrder from './Components/AdminApp/Orders/ListOrder/ListOrder';
 import ListCoupon from './Components/AdminApp/Coupons/ListCoupon/ListCoupon';
 import CreateCoupon from './Components/AdminApp/Coupons/CreateCoupon/CreateCoupon';
 import DetailCoupon from './Components/AdminApp/Coupons/DetailCoupon/DetailCoupon';
+/* Review Product */
+import ReviewProduct from './Components/Profile/MyOrder/ReviewProduct/ReviewProduct';
+/* Admin Reviews */
+import ListReview from './Components/AdminApp/Reviews/ListReview/ListReview';
+import DetailReview from './Components/AdminApp/Reviews/DetailReview/DetailReview';
 /**
  * This component renders the routes for the public part of the application.
  * It includes the auth pages, the error pages, the client pages, the client auth pages, and the admin pages.
@@ -111,10 +116,14 @@ function Public() {
                 {/* Admin Orders */}
                 <Route path='/admin/orders/detail/:id' element={<DetailOrder/>}/>
                 <Route path='/admin/orders/list' element={<ListOrder/>}/>
-                  {/* Admin Coupons */}
-                  <Route path='/admin/coupons/list' element={<ListCoupon/>}/>
+                {/* Admin Coupons */}
+                <Route path='/admin/coupons/list' element={<ListCoupon/>}/>
                 <Route path='/admin/coupons/create' element={<CreateCoupon/>}/>
                 <Route path='/admin/coupons/detail/:id' element={<DetailCoupon/>}/>
+                {/* Admin Reviews */}
+                <Route path='/admin/reviews/list' element={<ListReview/>}/>
+                <Route path='/admin/reviews/detail/:id' element={<DetailReview/>}/>
+                <Route path='/reviews/products' element={<ReviewProduct/>}/>
             </Routes>
         </div>
     )
