@@ -129,6 +129,20 @@ function Sidebar() {
                         </ul>
                     </li>
 
+                    <li className="nav-item">
+                        <a className="nav-link collapsed" data-bs-target="#reviews-nav" data-bs-toggle="collapse"
+                           href="#">
+                            <i className="bi bi-gem"></i><span>Quản lí đánh giá</span><i
+                            className="bi bi-chevron-down ms-auto"></i>
+                        </a>
+                        <ul id="reviews-nav" className="nav-content collapse " data-bs-parent="#sidebar-nav">
+                            <li>
+                                <a href="/admin/reviews/list">
+                                    <i className="bi bi-circle"></i><span>Danh sách đánh giá</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
 
                     <li className="nav-heading">Trang</li>
 
@@ -141,6 +155,7 @@ function Sidebar() {
                     
                 </ul>
             </aside>
+
         </>
 
     )
