@@ -4,11 +4,13 @@ namespace App\Http\Controllers\restapi\admin;
 
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Api;
+use App\Models\Attributes;
 use App\Models\OrderHistories;
 use App\Models\OrderItems;
 use App\Models\Orders;
 use App\Models\ProductOptions;
 use App\Models\Products;
+use App\Models\Properties;
 use App\Models\Revenues;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -139,6 +141,27 @@ class AdminOrderApi extends Api
                 $order = $item->toArray();
                 $product = Products::find($item->product_id);
                 $order['product'] = $product->toArray();
+
+                $product_option = ProductOptions::where('id', $item->value)->first();
+                $order['product_options'] = $product_option->toArray();
+
+                $dataArray = $product_option->value;
+                $dataArray = json_decode($dataArray, true);
+
+                $dataConvert = [];
+                foreach ($dataArray as $op) {
+                    $attribute = Attributes::find($op['attribute_item']);
+                    $property = Properties::find($op['property_item']);
+
+                    $data = [
+                        'attribute' => $attribute->toArray(),
+                        'property' => $property->toArray()
+                    ];
+
+                    $dataConvert[] = $data;
+                }
+                $order['attribute'] = $dataConvert;
+
                 return $order;
             });
 
@@ -276,7 +299,13 @@ class AdminOrderApi extends Api
                 $order_items->each(function ($item) {
                     $option = ProductOptions::find($item->value);
                     $option->quantity = $option->quantity + $item->quantity;
+
                     $option->save();
+
+                    $product = Products::find($option->product_id);
+                    $product->quantity = $product->quantity + $item->quantity;
+
+                    $product->save();
                 });
             }
 

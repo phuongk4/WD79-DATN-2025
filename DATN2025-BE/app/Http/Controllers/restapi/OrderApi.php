@@ -4,10 +4,13 @@ namespace App\Http\Controllers\restapi;
 
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Api;
+use App\Models\Attributes;
+use App\Models\OrderHistories;
 use App\Models\OrderItems;
 use App\Models\Orders;
 use App\Models\ProductOptions;
 use App\Models\Products;
+use App\Models\Properties;
 use Illuminate\Http\Request;
 use OpenApi\Annotations as OA;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -108,6 +111,7 @@ class OrderApi extends Api
             $data = returnMessage(0, null, 'Order not found');
             return response($data, 404);
         }
+
         $order_convert = $order->toArray();
 
         $order_items = OrderItems::where('order_id', $id)
@@ -116,6 +120,27 @@ class OrderApi extends Api
                 $order = $item->toArray();
                 $product = Products::find($item->product_id);
                 $order['product'] = $product->toArray();
+
+                $product_option = ProductOptions::where('id', $item->value)->first();
+                $order['product_options'] = $product_option->toArray();
+
+                $dataArray = $product_option->value;
+                $dataArray = json_decode($dataArray, true);
+
+                $dataConvert = [];
+                foreach ($dataArray as $op) {
+                    $attribute = Attributes::find($op['attribute_item']);
+                    $property = Properties::find($op['property_item']);
+
+                    $data = [
+                        'attribute' => $attribute->toArray(),
+                        'property' => $property->toArray()
+                    ];
+
+                    $dataConvert[] = $data;
+                }
+                $order['attribute'] = $dataConvert;
+
                 return $order;
             });
 
@@ -166,6 +191,16 @@ class OrderApi extends Api
                 return response($data, 404);
             }
 
+            if ($order->status == OrderStatus::CONFIRMED) {
+                $data = returnMessage(0, null, 'Đơn hàng đã được xác nhận!');
+                return response($data, 400);
+            }
+
+            if ($order->status == OrderStatus::SHIPPING) {
+                $data = returnMessage(0, null, 'Đơn hàng đang vận chuyển!');
+                return response($data, 400);
+            }
+
             if ($order->status == OrderStatus::CANCELED) {
                 $data = returnMessage(0, null, 'Đơn hàng đã huỷ!');
                 return response($data, 400);
@@ -188,7 +223,19 @@ class OrderApi extends Api
                 $option = ProductOptions::find($item->value);
                 $option->quantity = $option->quantity + $item->quantity;
                 $option->save();
+
+                $product = Products::find($option->product_id);
+                $product->quantity = $product->quantity + $item->quantity;
+
+                $product->save();
             });
+
+            $order_history = new OrderHistories();
+            $order_history->order_id = $order->id;
+            $order_history->status = OrderStatus::CANCELED;
+            $order_history->user_id = $order->user_id;
+            $order_history->notes = $order->reason_cancel;
+            $order_history->save();
 
             $data = returnMessage(1, $order, 'Cancel success');
             return response($data, 200);
