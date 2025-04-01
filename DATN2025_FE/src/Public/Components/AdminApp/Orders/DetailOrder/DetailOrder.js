@@ -294,7 +294,22 @@ function DetailOrder() {
                                                             <img src={orderItem.product.thumbnail} alt=""
                                                                  width="100px"/>
                                                         </td>
-                                                        <td>{orderItem.product.name}</td>
+                                                        <td>
+                                                            {orderItem.product.name}
+                                                            <div className="list-option mt-2 small">
+                                                                {
+                                                                    orderItem.attribute.map((item1, index1) => {
+                                                                        return (
+                                                                            <div key={index1}
+                                                                                 className="d-flex align-items-center justify-content-start">
+                                                                                <span>{item1.attribute.name}: </span>
+                                                                                <span>{item1.property.name}</span>
+                                                                            </div>
+                                                                        );
+                                                                    })
+                                                                }
+                                                            </div>
+                                                        </td>
                                                         <td>{orderItem.quantity}</td>
                                                         <td>{orderItem.price}</td>
                                                         <td>{ConvertNumber(orderItem.price * orderItem.quantity)}</td>

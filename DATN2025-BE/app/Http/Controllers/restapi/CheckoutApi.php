@@ -451,9 +451,9 @@ class CheckoutApi extends Api
             /**
              * Xử lí khi mua đơn hàng sẽ trừ đi số sản phẩm đã mua
              * */
-//            $product = Products::find($cart->product_id);
-//            $product->quantity -= $cart->quantity;
-//            $product->save();
+           $product = Products::find($cart->product_id);
+           $product->quantity -= $cart->quantity;
+           $product->save();
 
             $option->quantity -= $cart->quantity;
             $option->save();
