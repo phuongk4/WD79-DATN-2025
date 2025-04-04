@@ -1,14 +1,14 @@
-import React, {useEffect, useState} from 'react'
-import {Link} from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom';
 import Header from '../Shared/Client/Header/Header';
 import Footer from '../Shared/Client/Footer/Footer';
 import $ from 'jquery';
 import productService from "../Service/ProductService";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Swiper, SwiperSlide} from 'swiper/react';
+import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/pagination';
-import {Autoplay, Pagination, Navigation} from 'swiper/modules';
+import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -67,7 +67,7 @@ function Home() {
 
     return (
         <div className="site-wrap">
-            <Header/>
+            <Header />
             <Swiper
                 slidesPerView={1}
                 autoplay={{
@@ -83,7 +83,7 @@ function Home() {
             >
                 <SwiperSlide >
                     <div className="site-blocks-cover"
-                         style={{backgroundImage: `url('/assets/clients/images/anhbanner2.avif')`}}>
+                        style={{ backgroundImage: `url('/assets/clients/images/anhbanner2.avif')` }}>
                         <div className="container">
                             <div className="row align-items-start align-items-md-center justify-content-end">
                                 <div className="col-md-5 text-center text-md-left pt-5 pt-md-0">
@@ -103,7 +103,7 @@ function Home() {
                 </SwiperSlide>
                 <SwiperSlide>
                     <div className="site-blocks-cover"
-                         style={{backgroundImage: `url('/assets/clients/images/anhbanner1.jpg')`}}>
+                        style={{ backgroundImage: `url('/assets/clients/images/anhbanner1.jpg')` }}>
                         <div className="container">
                             <div className="row align-items-start align-items-md-center justify-content-start">
                                 <div className="col-md-5 text-center text-md-left pt-5 pt-md-0">
@@ -123,7 +123,7 @@ function Home() {
                 </SwiperSlide>
                 <SwiperSlide >
                     <div className="site-blocks-cover"
-                         style={{backgroundImage: `url('/assets/clients/images/banner3.avif')`}}>
+                        style={{ backgroundImage: `url('/assets/clients/images/banner3.avif')` }}>
                         <div className="container">
                             <div className="row align-items-start align-items-md-center justify-content-end">
                                 <div className="col-md-5 text-center text-md-left pt-5 pt-md-0">
@@ -208,18 +208,19 @@ function Home() {
                                                 <div className="block-4 text-center">
                                                     <figure className="block-4-image">
                                                         <img
-                                                            src={product.thumbnail || "/assets/clients/images/cloth_1.jpg"}
+                                                            src={`http://127.0.0.1:8000${product.thumbnail || "/assets/clients/images/cloth_1.jpg"}`}
                                                             alt={product.name || "Image placeholder"}
                                                             className="img-fluid"
-                                                            style={{width: '100%', height: '300px',}}
+                                                            style={{ width: '100%', height: '300px', borderRadius: '15px' }}
                                                         />
+
                                                     </figure>
-                                                    <div className="block-4-text p-4" style={{height: '180px'}}>
+                                                    <div className="block-4-text p-4" style={{ height: '180px' }}>
                                                         <h3><a className="text_truncate_"
-                                                               href={'/products/' + product.id}>{product.name || "Product Name"}</a>
+                                                            href={'/products/' + product.id}>{product.name || "Product Name"}</a>
                                                         </h3>
-                                                        <p className="mb-0 text_truncate_2_" style={{height: '55px'}}
-                                                           dangerouslySetInnerHTML={{__html: product.short_description}}></p>
+                                                        <p className="mb-0 text_truncate_2_" style={{ height: '55px' }}
+                                                            dangerouslySetInnerHTML={{ __html: product.short_description }}></p>
                                                         <p className="text-danger font-weight-bold">
                                                             {ConvertNumber(product.sale_price || 50)}
                                                             <strike className="ml-2 small text-black">
@@ -242,7 +243,7 @@ function Home() {
                 categories.map((category, index) => (
                     category.count > 0 &&
                     <div className={'site-section block-3 mt-3 site-blocks-2 ' + (index % 2 === 0 ? 'bg-light' : '')}
-                         key={index}>
+                        key={index}>
                         <div className="container">
                             <div className="row justify-content-center">
                                 <div className="col-md-7 site-section-heading text-start pt-4">
@@ -267,19 +268,20 @@ function Home() {
                                                         <div className="block-4 text-center">
                                                             <figure className="block-4-image">
                                                                 <img
-                                                                    src={product.thumbnail || "/assets/clients/images/cloth_1.jpg"}
+                                                                    src={`http://127.0.0.1:8000${product.thumbnail || "/assets/clients/images/cloth_1.jpg"}`}
                                                                     alt={product.name || "Image placeholder"}
                                                                     className="img-fluid"
-                                                                    style={{width: '100%', height: '300px',}}
+                                                                    style={{ width: '100%', height: '300px', borderRadius: '15px' }}
                                                                 />
+
                                                             </figure>
-                                                            <div className="block-4-text p-4" style={{height: '180px'}}>
+                                                            <div className="block-4-text p-4" style={{ height: '180px' }}>
                                                                 <h3><a className="text_truncate_"
-                                                                       href={'/products/' + product.id}>{product.name || "Product Name"}</a>
+                                                                    href={'/products/' + product.id}>{product.name || "Product Name"}</a>
                                                                 </h3>
                                                                 <p className="mb-0 text_truncate_2_"
-                                                                   style={{height: '55px'}}
-                                                                   dangerouslySetInnerHTML={{__html: product.short_description}}></p>
+                                                                    style={{ height: '55px' }}
+                                                                    dangerouslySetInnerHTML={{ __html: product.short_description }}></p>
                                                                 <p className="text-danger font-weight-bold">
                                                                     {ConvertNumber(product.sale_price || 50)}
                                                                     <strike className="ml-2 small text-black">
@@ -300,7 +302,7 @@ function Home() {
                 ))
             }
 
-            <Footer/>
+            <Footer />
         </div>
     )
 }
