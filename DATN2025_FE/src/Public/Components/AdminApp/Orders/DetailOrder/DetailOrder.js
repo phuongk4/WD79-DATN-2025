@@ -1,6 +1,6 @@
-import {Form, Table} from 'antd';
-import React, {useEffect, useState} from 'react'
-import {Link, useNavigate, useParams} from 'react-router-dom'
+import { Form, Table } from 'antd';
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import orderService from '../../../Service/OrderService';
 import Header from '../../../Shared/Admin/Header/Header'
 import Sidebar from '../../../Shared/Admin/Sidebar/Sidebar'
@@ -8,7 +8,7 @@ import $ from 'jquery';
 import ConvertNumber from "../../../Shared/Utils/ConvertNumber";
 
 function DetailOrder() {
-    const {id} = useParams();
+    const { id } = useParams();
     const [form] = Form.useForm();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
@@ -158,9 +158,9 @@ function DetailOrder() {
     }, [form, id])
 
     return (<>
-        <Header/>
-        <Sidebar/>
-        <main id="main" className="main" style={{backgroundColor: "#f6f9ff"}}>
+        <Header />
+        <Sidebar />
+        <main id="main" className="main" style={{ backgroundColor: "#f6f9ff" }}>
             <div className="pagetitle">
                 <h1>Chi tiết đơn hàng</h1>
                 <nav>
@@ -183,90 +183,90 @@ function DetailOrder() {
                                         <div className="p-3 border">
                                             <table className="table site-block-order-table mb-5">
                                                 <colgroup>
-                                                    <col width="40%"/>
-                                                    <col width="60%"/>
+                                                    <col width="40%" />
+                                                    <col width="60%" />
                                                 </colgroup>
                                                 <thead>
-                                                <tr>
-                                                    <td className="text-black ">
-                                                        Tên đầy đủ
-                                                    </td>
-                                                    <td className="text-black FullName">
-                                                        {order.full_name}
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="text-black ">
-                                                        Email
-                                                    </td>
-                                                    <td className="text-black Email">
-                                                        {order.email}
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="text-black ">
-                                                        Số điện thoại
-                                                    </td>
-                                                    <td className="text-black Phone">
-                                                        {order.phone}
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="text-black ">
-                                                        Địa chỉ
-                                                    </td>
-                                                    <td className="text-black Address">
-                                                        {order.address}
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="text-black ">
-                                                        Phương thức thanh toán
-                                                    </td>
-                                                    <td className="text-black Address">
-                                                        {order.order_method}
-                                                    </td>
-                                                </tr>
+                                                    <tr>
+                                                        <td className="text-black ">
+                                                            Tên đầy đủ
+                                                        </td>
+                                                        <td className="text-black FullName">
+                                                            {order.full_name}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="text-black ">
+                                                            Email
+                                                        </td>
+                                                        <td className="text-black Email">
+                                                            {order.email}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="text-black ">
+                                                            Số điện thoại
+                                                        </td>
+                                                        <td className="text-black Phone">
+                                                            {order.phone}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="text-black ">
+                                                            Địa chỉ
+                                                        </td>
+                                                        <td className="text-black Address">
+                                                            {order.address}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="text-black ">
+                                                            Phương thức thanh toán
+                                                        </td>
+                                                        <td className="text-black Address">
+                                                            {order.order_method}
+                                                        </td>
+                                                    </tr>
                                                 </thead>
                                                 <tbody>
-                                                <tr>
-                                                    <td className="text-black ">
-                                                        <p>Tổng tiền của sản phẩm</p></td>
-                                                    <td className="text-black">
-                                                        <span
-                                                            id="allProductPrice">{ConvertNumber(order.products_price)}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="text-black ">
-                                                        <p>Phí vận chuyển</p>
-                                                    </td>
-                                                    <td className="text-black">
-                                                        <span
-                                                            id="shipping_fee">{ConvertNumber(order.shipping_price)}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="text-black ">
-                                                        <p>Miễn giảm giá</p>
-                                                    </td>
-                                                    <td className="text-black">
-                                                        <span
-                                                            id="discount_fee">{ConvertNumber(order.discount_price)}</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="text-black ">
-                                                        <p>Tổng tiền
-                                                        </p>
-                                                    </td>
-                                                    <td className="text-black ">
-                                                        <p>
+                                                    <tr>
+                                                        <td className="text-black ">
+                                                            <p>Tổng tiền của sản phẩm</p></td>
+                                                        <td className="text-black">
                                                             <span
-                                                                id="order_total">{ConvertNumber(order.total_price)}</span>
-                                                        </p>
-                                                    </td>
-                                                </tr>
+                                                                id="allProductPrice">{ConvertNumber(order.products_price)}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="text-black ">
+                                                            <p>Phí vận chuyển</p>
+                                                        </td>
+                                                        <td className="text-black">
+                                                            <span
+                                                                id="shipping_fee">{ConvertNumber(order.shipping_price)}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="text-black ">
+                                                            <p>Miễn giảm giá</p>
+                                                        </td>
+                                                        <td className="text-black">
+                                                            <span
+                                                                id="discount_fee">{ConvertNumber(order.discount_price)}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="text-black ">
+                                                            <p>Tổng tiền
+                                                            </p>
+                                                        </td>
+                                                        <td className="text-black ">
+                                                            <p>
+                                                                <span
+                                                                    id="order_total">{ConvertNumber(order.total_price)}</span>
+                                                            </p>
+                                                        </td>
+                                                    </tr>
                                                 </tbody>
                                             </table>
                                             <h5>Ghi chú:</h5>
@@ -279,42 +279,47 @@ function DetailOrder() {
                                         <div className="p-3 p-lg-5 border">
                                             <table className="table mb-4">
                                                 <thead>
-                                                <tr>
-                                                    <th scope="col">Hình ảnh</th>
-                                                    <th scope="col">Tên sản phẩm</th>
-                                                    <th scope="col">Số lượng</th>
-                                                    <th scope="col">Đơn giá</th>
-                                                    <th scope="col">Thành tiền</th>
-                                                </tr>
+                                                    <tr>
+                                                        <th scope="col">Hình ảnh</th>
+                                                        <th scope="col">Tên sản phẩm</th>
+                                                        <th scope="col">Số lượng</th>
+                                                        <th scope="col">Đơn giá</th>
+                                                        <th scope="col">Thành tiền</th>
+                                                    </tr>
                                                 </thead>
                                                 <tbody id="tableOrderItem">
-                                                {orderItems.map((orderItem, index) => {
-                                                    return (<tr key={index}>
-                                                        <td>
-                                                            <img src={orderItem.product.thumbnail} alt=""
-                                                                 width="100px"/>
-                                                        </td>
-                                                        <td>
-                                                            {orderItem.product.name}
-                                                            <div className="list-option mt-2 small">
-                                                                {
-                                                                    orderItem.attribute.map((item1, index1) => {
-                                                                        return (
-                                                                            <div key={index1}
-                                                                                 className="d-flex align-items-center justify-content-start">
-                                                                                <span>{item1.attribute.name}: </span>
-                                                                                <span>{item1.property.name}</span>
-                                                                            </div>
-                                                                        );
-                                                                    })
-                                                                }
-                                                            </div>
-                                                        </td>
-                                                        <td>{orderItem.quantity}</td>
-                                                        <td>{orderItem.price}</td>
-                                                        <td>{ConvertNumber(orderItem.price * orderItem.quantity)}</td>
-                                                    </tr>)
-                                                })}
+                                                    {orderItems.map((orderItem, index) => {
+                                                        return (<tr key={index}>
+                                                            <td>
+                                                                <img
+                                                                    src={`http://127.0.0.1:8000${orderItem.product.thumbnail}`}
+                                                                    alt=""
+                                                                    width="100px"
+                                                                    style={{ borderRadius: '10px' }}
+                                                                />
+
+                                                            </td>
+                                                            <td>
+                                                                {orderItem.product.name}
+                                                                <div className="list-option mt-2 small">
+                                                                    {
+                                                                        orderItem.attribute.map((item1, index1) => {
+                                                                            return (
+                                                                                <div key={index1}
+                                                                                    className="d-flex align-items-center justify-content-start">
+                                                                                    <span>{item1.attribute.name}: </span>
+                                                                                    <span>{item1.property.name}</span>
+                                                                                </div>
+                                                                            );
+                                                                        })
+                                                                    }
+                                                                </div>
+                                                            </td>
+                                                            <td>{orderItem.quantity}</td>
+                                                            <td>{orderItem.price}</td>
+                                                            <td>{ConvertNumber(orderItem.price * orderItem.quantity)}</td>
+                                                        </tr>)
+                                                    })}
                                                 </tbody>
                                             </table>
 
@@ -322,7 +327,7 @@ function DetailOrder() {
                                                 Lịch sử đơn hàng
                                             </h5>
                                             <Table
-                                                style={{margin: "auto"}}
+                                                style={{ margin: "auto" }}
                                                 columns={columns}
                                                 dataSource={orderHistories}
                                                 pagination={tableParams.pagination}
@@ -387,7 +392,7 @@ function DetailOrder() {
                                             <div className="form-group col-md-6">
                                                 <label htmlFor="status">Trạng thái</label>
                                                 <select id="status" className="form-control" disabled
-                                                        value={selectedValue}>
+                                                    value={selectedValue}>
                                                     <option value={order.status}>{order.status}
                                                     </option>
                                                 </select>
@@ -397,14 +402,14 @@ function DetailOrder() {
                                         {(order.status !== 'ĐÃ HỦY' && order.status !== 'ĐÃ HOÀN THÀNH') && (
                                             <div className="d-flex gap-3 align-items-center justify-content-start">
                                                 <button type="button" className="btn btn-primary mt-3"
-                                                        onClick={() => updateOrder(order.id)}>
+                                                    onClick={() => updateOrder(order.id)}>
                                                     Chuyển trạng thái
                                                 </button>
 
                                                 {(order.status === 'CHỜ XÁC NHẬN' || order.status === 'ĐANG XỬ LÝ' || order.status === 'ĐÃ XÁC NHẬN') && (
                                                     <button type="button" data-bs-toggle="modal"
-                                                            data-bs-target="#exampleModal"
-                                                            className="btn btn-danger mt-3">
+                                                        data-bs-target="#exampleModal"
+                                                        className="btn btn-danger mt-3">
                                                         Hủy đơn hàng
                                                     </button>
                                                 )}
@@ -425,25 +430,25 @@ function DetailOrder() {
         </main>
 
         <div className="modal fade" id="exampleModal" tabIndex="-1" aria-labelledby="exampleModalLabel"
-             aria-hidden="true">
+            aria-hidden="true">
             <div className="modal-dialog">
                 <div className="modal-content">
                     <div className="modal-header">
                         <h1 className="modal-title fs-5" id="exampleModalLabel">Huỷ đơn hàng</h1>
                         <button type="button" className="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
+                            aria-label="Close"></button>
                     </div>
                     <div className="modal-body">
                         <div className="form-group">
                             <label htmlFor="reason_cancel" className="text-black">Lý do huỷ đơn hàng</label>
                             <textarea name="reason_cancel" id="reason_cancel" cols="30" rows="5"
-                                      className="form-control"
-                                      placeholder="Vui lòng nhập lý do huỷ đơn hàng của bạn ở đây..."></textarea>
+                                className="form-control"
+                                placeholder="Vui lòng nhập lý do huỷ đơn hàng của bạn ở đây..."></textarea>
                         </div>
                     </div>
                     <div className="modal-footer">
                         <button type="button" id="btnCloseModal" className="btn btn-secondary"
-                                data-bs-dismiss="modal">Đóng
+                            data-bs-dismiss="modal">Đóng
                         </button>
                         <button type="button" className="btn btn-danger" onClick={() => handleCancel(order.id)}>
                             Xác nhận huỷ đơn hàng
