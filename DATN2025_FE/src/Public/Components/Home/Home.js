@@ -83,13 +83,13 @@ function Home() {
             >
                 <SwiperSlide >
                     <div className="site-blocks-cover"
-                        style={{ backgroundImage: `url('/assets/clients/images/anhbanner2.avif')` }}>
+                        style={{ backgroundImage: `url('/assets/clients/images/banner01.jpg')` }}>
                         <div className="container">
                             <div className="row align-items-start align-items-md-center justify-content-end">
                                 <div className="col-md-5 text-center text-md-left pt-5 pt-md-0">
                                     <h1 className="mb-2">Phong cách lịch lãm, khẳng định bản lĩnh phái mạnh</h1>
                                     <div className="intro-text text-center text-md-left">
-                                        <p className="mb-4">Trang web thời trang nam hàng đầu, mang đến cho phái
+                                        <p className="mb-4">Trang web giày nam hàng đầu, mang đến cho phái
                                             mạnh những xu
                                             hướng mới nhất và phong cách ấn tượng. </p>
                                         <p>
@@ -103,13 +103,13 @@ function Home() {
                 </SwiperSlide>
                 <SwiperSlide>
                     <div className="site-blocks-cover"
-                        style={{ backgroundImage: `url('/assets/clients/images/anhbanner1.jpg')` }}>
+                        style={{ backgroundImage: `url('/assets/clients/images/banner02.jpg')` }}>
                         <div className="container">
                             <div className="row align-items-start align-items-md-center justify-content-start">
                                 <div className="col-md-5 text-center text-md-left pt-5 pt-md-0">
                                     <h1 className="mb-2">Phong cách lịch lãm, khẳng định bản lĩnh phái mạnh</h1>
                                     <div className="intro-text text-center text-md-left">
-                                        <p className="mb-4">Trang web thời trang nam hàng đầu, mang đến cho phái
+                                        <p className="mb-4">Trang web giày nam hàng đầu, mang đến cho phái
                                             mạnh những xu
                                             hướng mới nhất và phong cách ấn tượng. </p>
                                         <p>
@@ -123,13 +123,13 @@ function Home() {
                 </SwiperSlide>
                 <SwiperSlide >
                     <div className="site-blocks-cover"
-                        style={{ backgroundImage: `url('/assets/clients/images/banner3.avif')` }}>
+                        style={{ backgroundImage: `url('/assets/clients/images/banner03.jpg')` }}>
                         <div className="container">
                             <div className="row align-items-start align-items-md-center justify-content-end">
                                 <div className="col-md-5 text-center text-md-left pt-5 pt-md-0">
                                     <h1 className="mb-2">Phong cách lịch lãm, khẳng định bản lĩnh phái mạnh</h1>
                                     <div className="intro-text text-center text-md-left">
-                                        <p className="mb-4">Trang web thời trang nam hàng đầu, mang đến cho phái
+                                        <p className="mb-4">Trang web giày nam hàng đầu, mang đến cho phái
                                             mạnh những xu
                                             hướng mới nhất và phong cách ấn tượng. </p>
                                         <p>
@@ -152,7 +152,7 @@ function Home() {
                             </div>
                             <div className="text">
                                 <h2 className="text-uppercase">Miễn phí giao hàng</h2>
-                                <p>Với MenFashion, mua sắm chưa bao giờ dễ dàng đến thế! Dù bạn ở bất cứ đâu, chỉ cần
+                                <p>Với Solevibe, mua sắm chưa bao giờ dễ dàng đến thế! Dù bạn ở bất cứ đâu, chỉ cần
                                     chọn sản phẩm, chúng tôi sẽ giao tận tay bạn mà không tốn thêm bất kỳ chi phí
                                     nào.</p>
                             </div>
@@ -174,7 +174,7 @@ function Home() {
                             </div>
                             <div className="text">
                                 <h2 className="text-uppercase">Hỗ trợ khách hàng</h2>
-                                <p>Đội ngũ chăm sóc khách hàng của MenFashion luôn sẵn sàng lắng nghe và hỗ trợ mọi thắc
+                                <p>Đội ngũ chăm sóc khách hàng của Solevibe luôn sẵn sàng lắng nghe và hỗ trợ mọi thắc
                                     mắc của bạn 24/7. Chúng tôi đảm bảo bạn được mua
                                     sắm thoải mái và hoàn toàn hài lòng.</p>
                             </div>
