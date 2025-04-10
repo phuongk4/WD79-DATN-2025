@@ -1,6 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {Form, message} from 'antd';
+import {Form, message, Spin} from 'antd';
+import {motion, AnimatePresence} from 'framer-motion';
+import {FiShoppingBag, FiCreditCard, FiTruck, FiTag, FiDollarSign} from 'react-icons/fi';
 import orderService from '../Service/OrderService';
 import Header from "../Shared/Client/Header/Header";
 import Footer from "../Shared/Client/Footer/Footer";
@@ -179,223 +181,930 @@ function Checkout() {
 
     const calcTotal = () => {
         let total = 0;
-        let totalCartItems = $('.totalCartItem');
-        totalCartItems.each(function () {
-            let totalCartItem = $(this).text();
-            totalCartItem = totalCartItem.replaceAll('.', '').replaceAll('đ', '');
-            total = parseInt(totalCartItem) + total;
-        })
+        
+        // Tính tổng từ danh sách sản phẩm
+        carts.forEach(cart => {
+            const itemPrice = cart.product.sale_price || cart.product.price;
+            const itemTotal = itemPrice * cart.quantity;
+            total += itemTotal;
+        });
 
-        let priceDiscount = $('#c_discount_price').val() ?? 0;
-
+        // Cập nhật tổng tiền sản phẩm
         $('#c_total_product').val(total);
-        let totalConvert = ConvertNumber(total);
-        $('#CartSubtotal').text(totalConvert);
+        $('#CartSubtotal').text(ConvertNumber(total));
 
+        // Tính giảm giá
+        const priceDiscount = parseInt($('#c_discount_price').val() || 0);
+        
+        // Tính tổng cuối cùng
+        let finalTotal = total - priceDiscount;
+        if (finalTotal < 0) finalTotal = 0;
 
-        total = Number(total) - priceDiscount;
-        if (total < 0) {
-            total = 0;
-        }
+        // Cập nhật tổng đơn hàng ở tất cả các vị trí hiển thị
+        $('#c_total').val(finalTotal);
+        $('#OrderTotal').text(ConvertNumber(finalTotal));
+        $('#OrderTotalButton').text(ConvertNumber(finalTotal));
 
-        $('#c_total').val(total);
-        total = ConvertNumber(total);
-        $('#OrderTotal').text(total);
+        // Cập nhật state để trigger re-render nếu cần
+        setLoading(false);
     }
 
     useEffect(() => {
         getListProductCart();
-        calcTotal();
+    }, []);
+
+    useEffect(() => {
+        if (carts.length > 0) {
+            calcTotal();
+        }
+    }, [carts]);
+
+    useEffect(() => {
         getUser();
     }, [loading]);
 
-    return (<div className="site-wrap">
-        <Header/>
-        <div className="bg-light py-3">
-            <div className="container">
-                <div className="row">
-                    <div className="col-md-12 mb-0"><a href="/">Trang chủ</a> <span
-                        className="mx-2 mb-0">/</span> <a href="/cart">Giỏi hàng</a> <span
-                        className="mx-2 mb-0">/</span> <strong className="text-black">Thanh toán</strong></div>
+    return (
+        <div className="site-wrap">
+            <Header />
+            
+            <div className="checkout-header">
+                <div className="container">
+                    <div className="row">
+                        <div className="col-md-12">
+                            <nav className="custom-breadcrumb" aria-label="breadcrumb">
+                                <ol className="breadcrumb">
+                                    <li className="breadcrumb-item">
+                                        <a href="/">
+                                            <FiShoppingBag />
+                                            <span>Trang chủ</span>
+                                        </a>
+                                    </li>
+                                    <li className="breadcrumb-item">
+                                        <a href="/cart">
+                                            <span>Giỏ hàng</span>
+                                        </a>
+                                    </li>
+                                    <li className="breadcrumb-item active">
+                                        <span>Thanh toán</span>
+                                    </li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div className="site-section">
-            <div className="container">
-                {carts.length === 0 ? (<div>
-                    <div className="text-center">
-                        <p>Giỏ hàng của bạn hiện đang trống.</p>
-                    </div>
-                </div>) : (<Form onFinish={CheckoutCart} className="row" id="formCheckout">
-                    <div className="col-md-6 mb-5 mb-md-0">
-                        <h2 className="h3 mb-3 text-black">Chi tiết thanh toán</h2>
-                        <div className="p-3 p-lg-5 border">
-                            <div className="form-group row">
-                                <div className="col-md-12">
-                                    <label htmlFor="full_name" className="text-black">Tên của bạn<span
-                                        className="text-danger">*</span></label>
-                                    <input type="text" required className="form-control" id="full_name"
-                                           name="full_name" defaultValue={users.full_name}/>
+            <div className="checkout-main">
+                <div className="container">
+                    <AnimatePresence>
+                        {loading ? (
+                            <div className="loading-container">
+                                <Spin size="large" />
+                                <p>Đang tải thông tin...</p>
+                            </div>
+                        ) : carts.length === 0 ? (
+                            <motion.div 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="empty-cart-container"
+                            >
+                                <div className="empty-cart-content">
+                                    <div className="empty-cart-icon">
+                                        <FiShoppingBag />
+                                    </div>
+                                    <h2>Giỏ hàng trống</h2>
+                                    <p>Hãy thêm sản phẩm vào giỏ hàng để tiến hành thanh toán</p>
+                                    <a href="/products" className="btn-shop-now">
+                                        Tiếp tục mua sắm
+                                    </a>
                                 </div>
-                            </div>
+                            </motion.div>
+                        ) : (
+                            <Form onFinish={CheckoutCart} className="checkout-form" id="formCheckout">
+                                <div className="checkout-grid">
+                                    <motion.div 
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        className="checkout-details"
+                                    >
+                                        <div className="section-header">
+                                            <h2>Thông tin thanh toán</h2>
+                                            <p>Vui lòng điền đầy đủ thông tin bên dưới</p>
+                                        </div>
 
-                            <div className="form-group row">
-                                <div className="col-md-12">
-                                    <label htmlFor="c_address" className="text-black">Địa chỉ <span
-                                        className="text-danger">*</span></label>
-                                    <input type="text" required className="form-control" id="c_address"
-                                           name="c_address" defaultValue={users.address}
-                                           placeholder="Địa chỉ đường phố"/>
-                                </div>
-                            </div>
+                                        <div className="form-container">
+                                            <div className="form-group">
+                                                <label htmlFor="full_name">
+                                                    Họ và tên <span>*</span>
+                                                </label>
+                                                <input 
+                                                    type="text" 
+                                                    id="full_name"
+                                                    defaultValue={users.full_name}
+                                                    required 
+                                                />
+                                            </div>
 
-                            <div className="form-group">
-                                <input type="text" required name="d_address" id="d_address"
-                                       className="form-control"
-                                       placeholder="Căn hộ, phòng suite, đơn vị, v.v. (tùy chọn)"/>
-                            </div>
+                                            <div className="form-row">
+                                                <div className="form-group">
+                                                    <label htmlFor="c_email_address">
+                                                        Email <span>*</span>
+                                                    </label>
+                                                    <input 
+                                                        type="email" 
+                                                        id="c_email_address"
+                                                        defaultValue={users.email}
+                                                        required 
+                                                    />
+                                                </div>
 
-                            <div className="form-group row mb-5">
-                                <div className="col-md-6">
-                                    <label htmlFor="c_email_address" className="text-black">Email <span
-                                        className="text-danger">*</span></label>
-                                    <input type="text" required className="form-control" id="c_email_address"
-                                           name="c_email_address" defaultValue={users.email}/>
-                                </div>
-                                <div className="col-md-6">
-                                    <label htmlFor="c_phone" className="text-black">Số điện thoại <span
-                                        className="text-danger">*</span></label>
-                                    <input type="text" required className="form-control" id="c_phone"
-                                           name="c_phone"
-                                           placeholder="Số điện thoại" defaultValue={users.phone}/>
-                                </div>
-                            </div>
+                                                <div className="form-group">
+                                                    <label htmlFor="c_phone">
+                                                        Số điện thoại <span>*</span>
+                                                    </label>
+                                                    <input 
+                                                        type="tel" 
+                                                        id="c_phone"
+                                                        defaultValue={users.phone}
+                                                        required 
+                                                    />
+                                                </div>
+                                            </div>
 
-                            <div className="form-group">
-                                <label htmlFor="c_order_notes" className="text-black">Ghi chú</label>
-                                <textarea name="c_order_notes" id="c_order_notes" cols="30" rows="5"
-                                          className="form-control"
-                                          placeholder="Viết ghi chú của bạn ở đây..."></textarea>
-                            </div>
-                            <div className="d-none">
-                                <input type="hidden" id="c_total_product" name="c_total_product"/>
-                                <input type="hidden" id="c_total" name="c_total"/>
-                                <input type="hidden" id="c_discount_price" name="c_discount_price"/>
-                                <input type="hidden" id="coupon_id" name="coupon_id"/>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-md-6">
-                        <div className="row mb-5">
-                            <div className="col-md-12">
-                                <h2 className="h3 mb-3 text-black">Mã giảm giá</h2>
-                                <div className="p-3 p-lg-5 border">
+                                            <div className="form-group">
+                                                <label htmlFor="c_address">
+                                                    Địa chỉ <span>*</span>
+                                                </label>
+                                                <input 
+                                                    type="text" 
+                                                    id="c_address"
+                                                    defaultValue={users.address}
+                                                    placeholder="Số nhà, tên đường..."
+                                                    required 
+                                                />
+                                            </div>
 
-                                    <label htmlFor="c_code" className="text-black mb-3">Nhập mã giảm giá của
-                                        bạn...</label>
-                                    <div className="input-group w-75">
-                                        <input type="text" className="form-control" id="coupon_code"
-                                               placeholder="Nhập mã giảm giá" aria-label="Coupon Code"
-                                               aria-describedby="button-addon2"/>
-                                        <div className="input-group-append">
-                                            <button className="btn btn-primary btn-sm" type="button"
-                                                    onClick={getCoupon}
-                                                    id="button-addon2">Xác nhận
+                                            <div className="form-group">
+                                                <label htmlFor="d_address">
+                                                    Địa chỉ bổ sung
+                                                </label>
+                                                <input 
+                                                    type="text" 
+                                                    id="d_address"
+                                                    placeholder="Căn hộ, suite, đơn vị, v.v. (tùy chọn)"
+                                                />
+                                            </div>
+
+                                            <div className="form-group">
+                                                <label htmlFor="c_order_notes">
+                                                    Ghi chú đơn hàng
+                                                </label>
+                                                <textarea 
+                                                    id="c_order_notes"
+                                                    rows="4"
+                                                    placeholder="Ghi chú về đơn hàng của bạn, ví dụ: thời gian hay địa điểm giao hàng cụ thể."
+                                                ></textarea>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+
+                                    <motion.div 
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        className="checkout-summary"
+                                    >
+                                        <div className="order-summary">
+                                            <div className="section-header">
+                                                <h2>Đơn hàng của bạn</h2>
+                                                <p>{carts.length} sản phẩm trong giỏ hàng</p>
+                                            </div>
+
+                                            <div className="order-items-container">
+                                                <div className="order-items">
+                                                    {carts.map((cart, index) => {
+                                                        const itemPrice = cart.product.sale_price || cart.product.price;
+                                                        const itemTotal = itemPrice * cart.quantity;
+                                                        
+                                                        return (
+                                                            <motion.div 
+                                                                key={index}
+                                                                initial={{ opacity: 0, y: 10 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                transition={{ delay: index * 0.1 }}
+                                                                className="order-item"
+                                                            >
+                                                                <div className="product-info">
+                                                                    <div className="product-image">
+                                                                        <img 
+                                                                            src={`http://127.0.0.1:8000${cart.product.thumbnail}`}
+                                                                            alt={cart.product.name}
+                                                                        />
+                                                                        <span className="quantity-badge">
+                                                                            {cart.quantity}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="product-details">
+                                                                        <h3 className="product-name">{cart.product.name}</h3>
+                                                                        <div className="product-meta">
+                                                                            {cart.attribute.map((item1, index1) => (
+                                                                                <span key={index1} className="variant-tag">
+                                                                                    {item1.property.name}
+                                                                                </span>
+                                                                            ))}
+                                                                            <span className="price-tag">
+                                                                                {ConvertNumber(itemPrice)} x {cart.quantity}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="item-total">
+                                                                    {ConvertNumber(itemTotal)}
+                                                                </div>
+                                                            </motion.div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+
+                                            <div className="coupon-section">
+                                                <div className="section-header">
+                                                    <h3>
+                                                        <FiTag />
+                                                        Mã giảm giá
+                                                    </h3>
+                                                </div>
+                                                <div className="coupon-form">
+                                                    <input 
+                                                        type="text" 
+                                                        id="coupon_code"
+                                                        placeholder="Nhập mã giảm giá" 
+                                                    />
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={getCoupon}
+                                                        className="btn-apply-coupon"
+                                                    >
+                                                        Áp dụng
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div className="order-total">
+                                                <div className="total-row">
+                                                    <span>Tạm tính</span>
+                                                    <span id="CartSubtotal">0đ</span>
+                                                </div>
+                                                <div className="total-row">
+                                                    <span>Phí vận chuyển</span>
+                                                    <span className="free-shipping">Miễn phí</span>
+                                                </div>
+                                                <div className="total-row">
+                                                    <span>Giảm giá</span>
+                                                    <span id="textDiscount" className="discount">0đ</span>
+                                                </div>
+                                                <div className="total-row grand-total">
+                                                    <span>Tổng cộng</span>
+                                                    <span id="OrderTotal">0đ</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="payment-methods">
+                                                <div className="section-header">
+                                                    <h3>
+                                                        <FiCreditCard />
+                                                        Phương thức thanh toán
+                                                    </h3>
+                                                </div>
+                                                
+                                                <div className="payment-options">
+                                                    <label className="payment-option">
+                                                        <input 
+                                                            type="radio" 
+                                                            id="cod" 
+                                                            name="order_method"
+                                                            value="cod" 
+                                                            className="order_method"
+                                                            defaultChecked 
+                                                        />
+                                                        <div className="option-content">
+                                                            <FiDollarSign />
+                                                            <div className="option-text">
+                                                                <span>Thanh toán khi nhận hàng</span>
+                                                                <small>Thanh toán bằng tiền mặt khi nhận hàng</small>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                    
+                                                    <label className="payment-option">
+                                                        <input 
+                                                            type="radio" 
+                                                            id="ewallet" 
+                                                            name="order_method"
+                                                            value="ewallet" 
+                                                            className="order_method"
+                                                        />
+                                                        <div className="option-content">
+                                                            <FiCreditCard />
+                                                            <div className="option-text">
+                                                                <span>Thanh toán online</span>
+                                                                <small>Thanh toán qua ví điện tử hoặc thẻ ngân hàng</small>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <button 
+                                                type="submit" 
+                                                id="btnCreate"
+                                                className="btn-place-order"
+                                            >
+                                                <span>Đặt hàng</span>
+                                                <small>Tổng cộng: <span id="OrderTotalButton">0đ</span></small>
                                             </button>
                                         </div>
-                                    </div>
 
+                                        <div className="d-none">
+                                            <input type="hidden" id="c_total_product" name="c_total_product" />
+                                            <input type="hidden" id="c_total" name="c_total" />
+                                            <input type="hidden" id="c_discount_price" name="c_discount_price" />
+                                            <input type="hidden" id="coupon_id" name="coupon_id" />
+                                        </div>
+                                    </motion.div>
                                 </div>
-                            </div>
-                        </div>
-                        <div className="row mb-5">
-                            <div className="col-md-12">
-                                <h2 className="h3 mb-3 text-black">Đơn hàng của bạn</h2>
-                                <div className="p-3 p-lg-5 border">
-                                    <table className="table site-block-order-table mb-5">
-                                        <thead>
-                                        <tr>
-                                            <th>Sản phẩm</th>
-                                            <th>Tổng tiền</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {carts.map((cart, index) => {
-                                            return (<tr>
-                                                <td className="product-name">
-                                                    <strong>{cart.product.name}</strong>
-                                                </td>
-                                                <td className="product-total">
-                                                    <strong className="totalCartItem"
-                                                            data-total={cart.product_option.sale_price * cart.quantity}>
-                                                        {ConvertNumber(cart.product_option.sale_price * cart.quantity)}
-                                                    </strong>
-                                                </td>
-                                            </tr>)
-                                        })}
-                                        <tr>
-                                            <td className="text-black font-weight-bold"><strong>Tổng cộng giỏ
-                                                hàng</strong></td>
-                                            <td className="text-black" id="CartSubtotal">0đ</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="text-black font-weight-bold"><strong>Phí vận
-                                                chuyển</strong></td>
-                                            <td className="text-black">0đ</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="text-black font-weight-bold"><strong>Giảm
-                                                giá</strong>
-                                            </td>
-                                            <td className="text-black" id="textDiscount">0đ</td>
-                                        </tr>
-                                        <tr>
-                                            <td className="text-black font-weight-bold"><strong>Tổng đơn
-                                                hàng</strong>
-                                            </td>
-                                            <td className="text-black font-weight-bold"><strong
-                                                id="OrderTotal">0đ</strong>
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-
-                                    <h4 className="mt-3 mb-2 font-weight-bold">Phương thức thanh toán</h4>
-                                    <div className="border p-3 mb-3">
-                                        <input type="radio" id="cod" value="cod" checked
-                                               className="order_method"
-                                               name="order_method"/>
-
-                                        <label htmlFor="cod" className="text-black ml-2">
-                                            Thanh toán khi nhận hàng
-                                        </label>
-                                    </div>
-
-                                    <div className="border p-3 mb-5">
-                                        <input type="radio" id="ewallet" className="order_method"
-                                               name="order_method" value="ewallet"/>
-                                        <label htmlFor="ewallet" className="text-black ml-2">
-                                            Thanh toán online
-                                        </label>
-                                    </div>
-
-                                    <div className="form-group">
-                                        <button type="submit" id="btnCreate"
-                                                className="btn btn-primary btn-lg py-3 btn-block">Đặt hàng
-                                        </button>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </Form>)}
+                            </Form>
+                        )}
+                    </AnimatePresence>
+                </div>
             </div>
+
+            <Footer />
+
+            <style jsx>{`
+                .checkout-header {
+                    background: #f8fafc;
+                    padding: 1.5rem 0;
+                    border-bottom: 1px solid #e2e8f0;
+                }
+
+                .breadcrumb {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    margin: 0;
+                    padding: 0;
+                    background: transparent;
+                }
+
+                .breadcrumb-item {
+                    display: flex;
+                    align-items: center;
+                    color: #64748b;
+                }
+
+                .breadcrumb-item a {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    color: #3b82f6;
+                    text-decoration: none;
+                    transition: color 0.2s;
+                }
+
+                .breadcrumb-item a:hover {
+                    color: #2563eb;
+                }
+
+                .breadcrumb-item.active {
+                    color: #0f172a;
+                }
+
+                .checkout-main {
+                    padding: 3rem 0;
+                    background: #f1f5f9;
+                    min-height: calc(100vh - 200px);
+                }
+
+                .loading-container {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 400px;
+                    gap: 1rem;
+                }
+
+                .loading-container p {
+                    color: #64748b;
+                    margin: 0;
+                }
+
+                .empty-cart-container {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 400px;
+                }
+
+                .empty-cart-content {
+                    text-align: center;
+                    max-width: 400px;
+                }
+
+                .empty-cart-icon {
+                    font-size: 4rem;
+                    color: #94a3b8;
+                    margin-bottom: 1.5rem;
+                }
+
+                .empty-cart-content h2 {
+                    color: #1e293b;
+                    margin-bottom: 0.75rem;
+                }
+
+                .empty-cart-content p {
+                    color: #64748b;
+                    margin-bottom: 2rem;
+                }
+
+                .btn-shop-now {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    background: #3b82f6;
+                    color: white;
+                    padding: 0.75rem 2rem;
+                    border-radius: 0.75rem;
+                    text-decoration: none;
+                    font-weight: 500;
+                    transition: all 0.2s;
+                }
+
+                .btn-shop-now:hover {
+                    background: #2563eb;
+                    transform: translateY(-1px);
+                }
+
+                .checkout-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 450px;
+                    gap: 2rem;
+                }
+
+                .section-header {
+                    margin-bottom: 2rem;
+                }
+
+                .section-header h2 {
+                    color: #0f172a;
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    margin: 0 0 0.5rem;
+                }
+
+                .section-header h3 {
+                    color: #0f172a;
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                    margin: 0 0 0.5rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                }
+
+                .section-header p {
+                    color: #64748b;
+                    margin: 0;
+                }
+
+                .form-container {
+                    background: white;
+                    border-radius: 1rem;
+                    padding: 2rem;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                }
+
+                .form-row {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 1rem;
+                }
+
+                .form-group {
+                    margin-bottom: 1.5rem;
+                }
+
+                .form-group:last-child {
+                    margin-bottom: 0;
+                }
+
+                .form-group label {
+                    display: block;
+                    color: #0f172a;
+                    font-weight: 500;
+                    margin-bottom: 0.5rem;
+                }
+
+                .form-group label span {
+                    color: #ef4444;
+                }
+
+                .form-group input,
+                .form-group textarea {
+                    width: 100%;
+                    padding: 0.75rem 1rem;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 0.75rem;
+                    background: #f8fafc;
+                    color: #0f172a;
+                    transition: all 0.2s;
+                }
+
+                .form-group input:focus,
+                .form-group textarea:focus {
+                    outline: none;
+                    border-color: #3b82f6;
+                    background: white;
+                    box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
+                }
+
+                .form-group input::placeholder,
+                .form-group textarea::placeholder {
+                    color: #94a3b8;
+                }
+
+                .order-summary {
+                    background: white;
+                    border-radius: 1rem;
+                    padding: 2rem;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                }
+
+                .order-items-container {
+                    position: relative;
+                    margin: 1.5rem -2rem;
+                    background: linear-gradient(#fff 30%, rgba(255, 255, 255, 0)),
+                                linear-gradient(rgba(255, 255, 255, 0), #fff 70%) 0 100%,
+                                radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0)),
+                                radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0)) 0 100%;
+                    background-repeat: no-repeat;
+                    background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
+                    background-attachment: local, local, scroll, scroll;
+                }
+
+                .order-items {
+                    max-height: 400px;
+                    overflow-y: auto;
+                    padding: 0 2rem;
+                    scrollbar-width: thin;
+                    scrollbar-color: #94a3b8 #e2e8f0;
+                }
+
+                .order-items::-webkit-scrollbar {
+                    width: 6px;
+                }
+
+                .order-items::-webkit-scrollbar-track {
+                    background: #e2e8f0;
+                    border-radius: 3px;
+                }
+
+                .order-items::-webkit-scrollbar-thumb {
+                    background-color: #94a3b8;
+                    border-radius: 3px;
+                }
+
+                .order-item {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    padding: 0.75rem;
+                    background: white;
+                    border-radius: 0.5rem;
+                    margin-bottom: 0.5rem;
+                    border: 1px solid #e2e8f0;
+                    transition: all 0.2s ease;
+                }
+
+                .order-item:hover {
+                    border-color: #3b82f6;
+                    transform: translateX(2px);
+                }
+
+                .order-item:last-child {
+                    margin-bottom: 0;
+                }
+
+                .product-info {
+                    display: flex;
+                    gap: 0.75rem;
+                    flex: 1;
+                    min-width: 0;
+                }
+
+                .product-image {
+                    position: relative;
+                    width: 60px;
+                    height: 60px;
+                    border-radius: 0.375rem;
+                    overflow: hidden;
+                    flex-shrink: 0;
+                }
+
+                .product-image img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                .quantity-badge {
+                    position: absolute;
+                    top: -0.25rem;
+                    right: -0.25rem;
+                    background: #3b82f6;
+                    color: white;
+                    width: 1.25rem;
+                    height: 1.25rem;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 0.75rem;
+                    font-weight: 500;
+                }
+
+                .product-details {
+                    flex: 1;
+                    min-width: 0;
+                }
+
+                .product-name {
+                    color: #1e293b;
+                    font-size: 0.875rem;
+                    font-weight: 500;
+                    margin: 0 0 0.25rem;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                .product-meta {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 0.375rem;
+                    font-size: 0.75rem;
+                }
+
+                .variant-tag {
+                    background: #f1f5f9;
+                    color: #64748b;
+                    padding: 0.125rem 0.5rem;
+                    border-radius: 1rem;
+                    white-space: nowrap;
+                }
+
+                .price-tag {
+                    color: #64748b;
+                }
+
+                .item-total {
+                    font-weight: 600;
+                    color: #0f172a;
+                    font-size: 0.875rem;
+                    padding-left: 0.75rem;
+                    flex-shrink: 0;
+                }
+
+                .coupon-section {
+                    padding: 1.5rem;
+                    background: #f8fafc;
+                    border-radius: 0.75rem;
+                    margin: 2rem 0;
+                }
+
+                .coupon-form {
+                    display: flex;
+                    gap: 0.75rem;
+                }
+
+                .coupon-form input {
+                    flex: 1;
+                    padding: 0.75rem 1rem;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 0.75rem;
+                    background: white;
+                }
+
+                .btn-apply-coupon {
+                    padding: 0.75rem 1.5rem;
+                    background: #3b82f6;
+                    color: white;
+                    border: none;
+                    border-radius: 0.75rem;
+                    font-weight: 500;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+
+                .btn-apply-coupon:hover {
+                    background: #2563eb;
+                }
+
+                .order-total {
+                    margin: 2rem 0;
+                }
+
+                .total-row {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 0.75rem 0;
+                    color: #64748b;
+                }
+
+                .free-shipping {
+                    color: #10b981;
+                }
+
+                .discount {
+                    color: #ef4444;
+                }
+
+                .grand-total {
+                    border-top: 2px solid #e2e8f0;
+                    margin-top: 0.5rem;
+                    padding-top: 1rem;
+                    font-weight: 600;
+                    color: #0f172a;
+                    font-size: 1.125rem;
+                }
+
+                .payment-methods {
+                    margin: 2rem 0;
+                }
+
+                .payment-options {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+
+                .payment-option {
+                    position: relative;
+                    display: block;
+                    margin: 0;
+                    cursor: pointer;
+                }
+
+                .payment-option input {
+                    position: absolute;
+                    opacity: 0;
+                    cursor: pointer;
+                    height: 0;
+                    width: 0;
+                }
+
+                .option-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                    padding: 1rem;
+                    background: #f8fafc;
+                    border: 2px solid #e2e8f0;
+                    border-radius: 0.75rem;
+                    transition: all 0.2s;
+                }
+
+                .payment-option input:checked ~ .option-content {
+                    border-color: #3b82f6;
+                    background: #eff6ff;
+                }
+
+                .option-content svg {
+                    color: #64748b;
+                    font-size: 1.5rem;
+                }
+
+                .option-text {
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .option-text span {
+                    color: #0f172a;
+                    font-weight: 500;
+                }
+
+                .option-text small {
+                    color: #64748b;
+                }
+
+                .btn-place-order {
+                    width: 100%;
+                    padding: 1rem;
+                    background: #3b82f6;
+                    border: none;
+                    border-radius: 0.75rem;
+                    color: white;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 0.25rem;
+                }
+
+                .btn-place-order:hover {
+                    background: #2563eb;
+                    transform: translateY(-1px);
+                }
+
+                .btn-place-order span {
+                    font-size: 1.125rem;
+                    font-weight: 600;
+                }
+
+                .btn-place-order small {
+                    opacity: 0.9;
+                }
+
+                @media (max-width: 1200px) {
+                    .checkout-grid {
+                        grid-template-columns: 1fr 400px;
+                    }
+                }
+
+                @media (max-width: 991px) {
+                    .checkout-grid {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .checkout-summary {
+                        order: -1;
+                    }
+                }
+
+                @media (max-width: 768px) {
+                    .order-items {
+                        max-height: 300px;
+                    }
+                }
+
+                @media (max-width: 576px) {
+                    .checkout-main {
+                        padding: 1.5rem 0;
+                    }
+
+                    .form-container,
+                    .order-summary {
+                        padding: 1.5rem;
+                    }
+
+                    .form-row {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .order-item {
+                        padding: 0.5rem;
+                    }
+
+                    .product-image {
+                        width: 48px;
+                        height: 48px;
+                    }
+
+                    .product-name {
+                        font-size: 0.813rem;
+                    }
+
+                    .product-meta {
+                        font-size: 0.688rem;
+                    }
+
+                    .item-total {
+                        font-size: 0.813rem;
+                    }
+
+                    .coupon-form {
+                        flex-direction: column;
+                    }
+
+                    .btn-apply-coupon {
+                        width: 100%;
+                    }
+
+                    .order-items-container {
+                        margin: 1rem -1.5rem;
+                    }
+
+                    .order-items {
+                        padding: 0 1.5rem;
+                        max-height: 250px;
+                    }
+                }
+            `}</style>
         </div>
-        <Footer/>
-    </div>)
+    );
 }
 
 export default Checkout

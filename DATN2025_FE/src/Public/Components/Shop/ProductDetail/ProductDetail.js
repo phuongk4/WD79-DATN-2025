@@ -7,7 +7,7 @@ import Footer from "../../Shared/Client/Footer/Footer";
 import productService from "../../Service/ProductService";
 import reviewService from "../../Service/ReviewService";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Zoom, Navigation, Thumbs } from "swiper/modules";
+import { Pagination, Zoom, Navigation, Thumbs, Autoplay } from "swiper/modules";
 import LoadingPage from "../../Shared/Utils/LoadingPage";
 import ConvertNumber from "../../Shared/Utils/ConvertNumber";
 import { FaShoppingCart, FaRegHeart, FaHeart, FaStar, FaRegStar, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
@@ -17,6 +17,9 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import 'swiper/css/zoom';
 import 'swiper/css/thumbs';
+import 'swiper/css/autoplay';
+import 'swiper/css/free-mode';
+import { FreeMode } from 'swiper/modules';
 
 /**
  * This component renders a page with details of a single product.
@@ -25,7 +28,17 @@ import 'swiper/css/thumbs';
  */
 function ProductDetail() {
     const { id } = useParams();
-    const [product, setProduct] = useState([]);
+    const [product, setProduct] = useState({
+        name: '',
+        sale_price: 0,
+        price: 0,
+        quantity: 0,
+        thumbnail: '',
+        gallery: '',
+        description: '',
+        short_description: '',
+        sku: ''
+    });
     const [reviews, setReviews] = useState([]);
     const [optionsProduct, setOptionsProduct] = useState([]);
     const [product_others, setProductOthers] = useState([]);
@@ -34,26 +47,38 @@ function ProductDetail() {
     const [activeTab, setActiveTab] = useState('description');
     const [quantity, setQuantity] = useState(1);
     const [selectedOptions, setSelectedOptions] = useState({});
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const getProduct = async () => {
-        setIsLoading(true);
-        await productService.detailProduct(id)
-            .then((res) => {
-                if (res.status === 200) {
-                    setProduct(res.data.data.product);
-                    setProductOthers(res.data.data.other_products);
-                    setOptionsProduct(res.data.data.product.options);
-                }
-            })
-            .catch((err) => {
-                console.log(err);
+        try {
+            setIsLoading(true);
+            const response = await productService.detailProduct(id);
+            
+            if (response.status === 200 && response.data?.data) {
+                const productData = response.data.data;
+                setProduct(productData.product || {
+                    name: '',
+                    sale_price: 0,
+                    price: 0,
+                    quantity: 0,
+                    thumbnail: '',
+                    gallery: '',
+                    description: '',
+                    short_description: '',
+                    sku: ''
+                });
+                setProductOthers(productData.other_products || []);
+                setOptionsProduct(productData.product?.options || []);
+            } else {
                 message.error('Không thể tải thông tin sản phẩm');
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
-    }
+            }
+        } catch (err) {
+            console.error('Error fetching product:', err);
+            message.error('Không thể tải thông tin sản phẩm');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const getReviewProduct = async () => {
         await reviewService.getReviewByProduct(id)
@@ -84,80 +109,89 @@ function ProductDetail() {
     }
 
     const selectOption = async (attributeId, propertyId, propertyName) => {
-        setIsLoading(true);
-        
-        // Update selected options state
-        setSelectedOptions(prev => ({
-            ...prev,
-            [attributeId]: { id: propertyId, name: propertyName }
-        }));
+        try {
+            setIsLoading(true);
+            
+            // Update selected options state
+            setSelectedOptions(prev => ({
+                ...prev,
+                [attributeId]: { id: propertyId, name: propertyName }
+            }));
 
-        // Get all selected option values
-        const selectedOptionValues = Object.values(selectedOptions).map(opt => opt.id);
-        selectedOptionValues.push(propertyId);
-        
-        const list_option = selectedOptionValues.join(',');
-        
-        await productService.optionProduct(list_option, id)
-            .then((res) => {
-                if (res.status === 200) {
-                    let pro_op = res.data.data;
-                    setProduct(prev => ({
-                        ...prev,
-                        sale_price: pro_op.sale_price,
-                        price: pro_op.price,
-                        quantity: pro_op.quantity
-                    }));
-                }
-            })
-            .catch((err) => {
-                console.log(err);
-                message.error('Không tìm thấy thuộc tính hợp lệ!');
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
-    }
+            // Get all selected option values
+            const selectedOptionValues = Object.values(selectedOptions).map(opt => opt.id);
+            selectedOptionValues.push(propertyId);
+            
+            const list_option = selectedOptionValues.join(',');
+            
+            const response = await productService.optionProduct(list_option, id);
+            
+            if (response.status === 200 && response.data?.data) {
+                const pro_op = response.data.data;
+                setProduct(prev => ({
+                    ...prev,
+                    sale_price: pro_op.sale_price || prev.sale_price,
+                    price: pro_op.price || prev.price,
+                    quantity: pro_op.quantity || prev.quantity
+                }));
+            }
+        } catch (err) {
+            console.error('Error selecting option:', err);
+            message.error('Không tìm thấy thuộc tính hợp lệ!');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const addToCart = async () => {
-        setIsLoading(true);
-        
-        // Check if all required options are selected
-        const requiredOptions = optionsProduct.filter(opt => opt.required);
-        const missingOptions = requiredOptions.filter(opt => !selectedOptions[opt.attribute.id]);
-        
-        if (missingOptions.length > 0) {
-            message.warning('Vui lòng chọn đầy đủ thuộc tính sản phẩm');
+        try {
+            setIsLoading(true);
+            
+            // Check if all required options are selected
+            const requiredOptions = optionsProduct.filter(opt => opt.required);
+            const missingOptions = requiredOptions.filter(opt => !selectedOptions[opt.attribute.id]);
+            
+            if (missingOptions.length > 0) {
+                message.warning('Vui lòng chọn đầy đủ thuộc tính sản phẩm');
+                return;
+            }
+
+            // Check if quantity is valid
+            if (!quantity || quantity < 1) {
+                message.warning('Vui lòng chọn số lượng hợp lệ');
+                return;
+            }
+
+            if (quantity > product.quantity) {
+                message.warning(`Chỉ còn ${product.quantity} sản phẩm trong kho`);
+                return;
+            }
+
+            const data = {
+                product_id: id,
+                values: Object.values(selectedOptions).map(opt => opt.id).join(','),
+                quantity: quantity
+            };
+
+            const response = await cartService.createCart(data);
+            
+            if (response.status === 200) {
+                message.success('Thêm sản phẩm vào giỏ hàng thành công!');
+            } else {
+                message.error(response.data.message || 'Có lỗi xảy ra');
+            }
+        } catch (err) {
+            console.error('Add to cart error:', err);
+            const messageText = err.response?.data?.message || err.response?.data?.status || 'Có lỗi xảy ra';
+            message.error(messageText);
+            
+            if (err.response?.status === 444 || err.response?.status === 401) {
+                window.location.href = '/login';
+            }
+        } finally {
             setIsLoading(false);
-            return;
         }
-
-        let data = {
-            product_id: id,
-            values: Object.values(selectedOptions).map(opt => opt.id).join(','),
-            quantity: quantity
-        };
-
-        await cartService.createCart(data)
-            .then((res) => {
-                if (res.status === 200) {
-                    message.success('Thêm sản phẩm vào giỏ hàng thành công!');
-                } else {
-                    message.error(res.data.message || 'Có lỗi xảy ra');
-                }
-            })
-            .catch((err) => {
-                let messageText = err.response?.data?.message || err.response?.data?.status || 'Có lỗi xảy ra';
-                message.error(messageText);
-                
-                if (err.response?.status === 444 || err.response?.status === 401) {
-                    window.location.href = '/login';
-                }
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
-    }
+    };
 
     const toggleWishlist = () => {
         setIsWishlist(!isWishlist);
@@ -188,7 +222,7 @@ function ProductDetail() {
     return (
         <div className="site-wrap">
             <Header />
-            
+                
             {/* Breadcrumb */}
             <div className="bg-light py-3">
                 <div className="container">
@@ -196,7 +230,7 @@ function ProductDetail() {
                         <div className="col-md-12 mb-0">
                             <a href="/" className="text-decoration-none">Trang chủ</a> 
                             <span className="mx-2 mb-0">/</span> 
-                            <strong className="text-black">{product.name}</strong>
+                            <strong className="text-black">{product?.name || 'Loading...'}</strong>
                         </div>
                     </div>
                 </div>
@@ -210,55 +244,54 @@ function ProductDetail() {
                             {/* Main Image Gallery */}
                             <div className="product-gallery">
                                 <Swiper
-                                    modules={[Zoom, Navigation, Thumbs]}
+                                    style={{
+                                        '--swiper-navigation-color': '#fff',
+                                        '--swiper-pagination-color': '#fff',
+                                    }}
                                     spaceBetween={10}
                                     navigation={true}
-                                    zoom={true}
-                                    thumbs={{ swiper: thumbsSwiper }}
-                                    className="main-swiper"
+                                    thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+                                    modules={[FreeMode, Navigation, Thumbs]}
+                                    className="mySwiper2"
                                 >
-                                    {product.gallery ? product.gallery.split(',').map((image, index) => (
-                                        <SwiperSlide key={index}>
-                                            <div className="swiper-zoom-container">
-                                                <img
+                                    {product.gallery ? 
+                                        product.gallery.split(',').map((image, index) => (
+                                            <SwiperSlide key={index}>
+                                                <img 
                                                     src={`http://127.0.0.1:8000${image}`}
                                                     alt={`${product.name} - ${index + 1}`}
-                                                    className="img-fluid product-main-image"
+                                                    style={{ width: '100%', height: 'auto' }}
                                                 />
-                                            </div>
-                                        </SwiperSlide>
-                                    )) : (
+                                            </SwiperSlide>
+                                        ))
+                                        : 
                                         <SwiperSlide>
-                                            <div className="swiper-zoom-container">
-                                                <img
-                                                    src={`http://127.0.0.1:8000${product.thumbnail}`}
-                                                    alt={product.name}
-                                                    className="img-fluid product-main-image"
-                                                />
-                                            </div>
+                                            <img 
+                                                src={`http://127.0.0.1:8000${product.thumbnail}`}
+                                                alt={product.name}
+                                                style={{ width: '100%', height: 'auto' }}
+                                            />
                                         </SwiperSlide>
-                                    )}
+                                    }
                                 </Swiper>
-                                
-                                {/* Thumbnail Gallery */}
+
                                 {product.gallery && (
                                     <Swiper
                                         onSwiper={setThumbsSwiper}
                                         spaceBetween={10}
                                         slidesPerView={4}
+                                        freeMode={true}
                                         watchSlidesProgress={true}
-                                        modules={[Thumbs]}
-                                        className="thumbs-swiper mt-3"
+                                        modules={[FreeMode, Navigation, Thumbs]}
+                                        className="mySwiper mt-3"
                                     >
                                         {product.gallery.split(',').map((image, index) => (
                                             <SwiperSlide key={index}>
-                                                <div className="thumbnail-container">
-                                                    <img
-                                                        src={`http://127.0.0.1:8000${image}`}
-                                                        alt={`${product.name} - ${index + 1}`}
-                                                        className="img-fluid thumbnail-image"
-                                                    />
-                                                </div>
+                                                <img 
+                                                    src={`http://127.0.0.1:8000${image}`}
+                                                    alt={`${product.name} thumbnail ${index + 1}`}
+                                                    style={{ width: '100%', height: 'auto', cursor: 'pointer' }}
+                                                />
                                             </SwiperSlide>
                                         ))}
                                     </Swiper>
@@ -289,18 +322,19 @@ function ProductDetail() {
                                     </div>
                                 </div>
                                 
+                                {/* Product Price Display */}
                                 <div className="product-price-wrapper mb-4">
                                     <div className="d-flex align-items-baseline">
                                         <h3 className="current-price text-danger mb-0 me-3">
-                                            {ConvertNumber(product.sale_price)}
+                                            {ConvertNumber(product?.sale_price || 0)}
                                         </h3>
-                                        {product.price > product.sale_price && (
+                                        {(product?.price || 0) > (product?.sale_price || 0) && (
                                             <>
                                                 <span className="original-price text-muted text-decoration-line-through fs-5">
-                                                    {ConvertNumber(product.price)}
+                                                    {ConvertNumber(product?.price || 0)}
                                                 </span>
                                                 <Badge 
-                                                    count={`-${Math.round((1 - product.sale_price / product.price) * 100)}%`} 
+                                                    count={`-${Math.round((1 - (product?.sale_price || 0) / (product?.price || 1)) * 100)}%`} 
                                                     style={{ 
                                                         backgroundColor: '#ff4d4f',
                                                         marginLeft: '12px',
@@ -844,6 +878,109 @@ function ProductDetail() {
 
                     .btn {
                         width: 100%;
+                    }
+                }
+
+                .swiper-button-next,
+                .swiper-button-prev {
+                    background: rgba(255, 255, 255, 0.8);
+                    width: 35px;
+                    height: 35px;
+                    border-radius: 50%;
+                    color: #000;
+                }
+
+                .swiper-button-next:after,
+                .swiper-button-prev:after {
+                    font-size: 18px;
+                }
+
+                .swiper-button-disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+
+                .product-main-image {
+                    width: 100%;
+                    height: auto;
+                    object-fit: cover;
+                    border-radius: 8px;
+                }
+
+                .thumbnail-container {
+                    padding: 2px;
+                    border: 2px solid transparent;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+
+                .thumbnail-container:hover {
+                    border-color: #4299e1;
+                }
+
+                .swiper-slide-thumb-active .thumbnail-container {
+                    border-color: #4299e1;
+                }
+
+                .thumbnail-image {
+                    width: 100%;
+                    height: 80px;
+                    object-fit: cover;
+                    border-radius: 4px;
+                }
+
+                .mySwiper2 {
+                    width: 100%;
+                    height: 400px;
+                    margin-bottom: 10px;
+                }
+
+                .mySwiper2 .swiper-slide {
+                    background: #fff;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    border-radius: 8px;
+                    overflow: hidden;
+                }
+
+                .mySwiper2 img {
+                    max-height: 400px;
+                    object-fit: contain;
+                }
+
+                .mySwiper {
+                    height: 100px;
+                    box-sizing: border-box;
+                    padding: 10px 0;
+                }
+
+                .mySwiper .swiper-slide {
+                    width: 25%;
+                    height: 100%;
+                    opacity: 0.4;
+                    border-radius: 4px;
+                    overflow: hidden;
+                }
+
+                .mySwiper .swiper-slide-thumb-active {
+                    opacity: 1;
+                }
+
+                .mySwiper img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                @media (max-width: 768px) {
+                    .mySwiper2 {
+                        height: 300px;
+                    }
+
+                    .mySwiper {
+                        height: 80px;
                     }
                 }
             `}</style>
