@@ -34,14 +34,32 @@ function Cart() {
         try {
             const res = await cartService.listCart();
             if (res.status === 200) {
+                console.log('Cart API Response:', res.data.data);
                 const cartData = res.data.data.map(item => {
                     const price = item.product.sale_price || item.product.price;
+                    
+                    // Xử lý thuộc tính sản phẩm
+                    let attributes = [];
+                    
+                    // Kiểm tra nếu có thuộc tính trong cart item
+                    if (item.attribute && Array.isArray(item.attribute)) {
+                        attributes = item.attribute.map(attr => ({
+                            attribute_name: attr.attribute.name,
+                            property_name: attr.property.name
+                        }));
+                    }
+                    
+                    console.log('Item attributes:', attributes);
+
                     return {
                         ...item,
                         price: price,
-                        total: price * item.quantity
+                        total: price * item.quantity,
+                        attributes: attributes
                     };
                 });
+                
+                console.log('Final cart data:', cartData);
                 setCarts(cartData);
             }
         } catch (err) {
@@ -370,13 +388,13 @@ function Cart() {
                                                                     <div className="cart-item-details">
                                                                         <h5 className="cart-item-title">{cart.product.name}</h5>
                                                                         <div className="cart-item-options">
-                                                                            {cart.attribute.map((item1, index1) => (
-                                                                                <div key={index1} className="cart-item-option">
+                                                                            {cart.attribute && Array.isArray(cart.attribute) && cart.attribute.map((attr, index) => (
+                                                                                <div key={index} className="cart-item-option">
                                                                                     <span className="option-label">
-                                                                                        {item1.attribute.name}:
+                                                                                        {attr.attribute.name}:
                                                                                     </span>
-                                                                                    <span className="option-value">
-                                                                                        {item1.property.name}
+                                                                                    <span className="option-value ms-1">
+                                                                                        {attr.property.name}
                                                                                     </span>
                                                                                 </div>
                                                                             ))}
