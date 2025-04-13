@@ -455,10 +455,10 @@ class CheckoutApi extends Api
            $product->quantity -= $cart->quantity;
            $product->save();
 
-            $option->quantity -= $cart->quantity;
-            $option->save();
-
-        }
+       if($option){
+        $option->quantity -= $cart->quantity;
+        $option->save();
+        }}
 
         return $order_created;
     }

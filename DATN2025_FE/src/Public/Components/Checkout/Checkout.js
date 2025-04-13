@@ -39,19 +39,35 @@ function Checkout() {
     };
 
     const getListProductCart = async () => {
-        await cartService.listCart()
-            .then((res) => {
-                if (res.status === 200) {
-                    console.log("carts", res.data.data)
-                    setCarts(res.data.data)
-                    setLoading(false)
+        try {
+            const res = await cartService.listCart();
+            if (res.status === 200 && Array.isArray(res.data.data)) {
+                console.log("Cart response:", res.data.data);
+                // Lọc bỏ các item không hợp lệ và map dữ liệu
+                const validCarts = res.data.data.filter(item => 
+                    item && item.product && typeof item.quantity === 'number'
+                );
+                
+                if (validCarts.length === 0) {
+                    message.warning('Giỏ hàng trống hoặc có lỗi dữ liệu');
+                    setCarts([]);
+                    return;
                 }
-            })
-            .catch((err) => {
-                setLoading(false)
-                console.log(err)
-            })
-    }
+
+                setCarts(validCarts);
+            } else {
+                console.error("Invalid cart data format:", res.data);
+                message.error('Không thể tải dữ liệu giỏ hàng');
+                setCarts([]);
+            }
+        } catch (err) {
+            console.error('Error fetching cart:', err);
+            message.error('Có lỗi xảy ra khi tải giỏ hàng');
+            setCarts([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const getCoupon = async () => {
         LoadingPage();
@@ -75,66 +91,89 @@ function Checkout() {
     }
 
     const CheckoutCart = async () => {
-        $('#btnCreate').prop('disabled', true).text('Đang đặt hàng...');
-        let data = {};
-        let order_method_ = $('.order_method');
-        let order_method = '';
-        order_method_.each(function () {
-            if ($(this).is(':checked')) {
-                order_method = $(this).val();
-            }
-        })
+        try {
+            $('#btnCreate').prop('disabled', true).text('Đang đặt hàng...');
+            
+            // Validate required fields
+            const requiredFields = {
+                full_name: 'Họ và tên',
+                c_email_address: 'Email',
+                c_phone: 'Số điện thoại',
+                c_address: 'Địa chỉ'
+            };
 
-        let inputs = $('#formCheckout input, #formCheckout select, #formCheckout textarea');
-        for (let i = 0; i < inputs.length; i++) {
-            if (!$(inputs[i]).val() && $(inputs[i]).attr('type') !== 'hidden' && $(inputs[i]).attr('id') !== 'coupon_code') {
-                let text = $(inputs[i]).prev().text();
-                alert(text + ' không được bỏ trống!');
+            const orderData = {};
+            let hasError = false;
+
+            // Validate và thu thập dữ liệu
+            Object.entries(requiredFields).forEach(([field, label]) => {
+                const value = $(`#${field}`).val()?.trim();
+                if (!value) {
+                    message.error(`${label} không được bỏ trống!`);
+                    hasError = true;
+                }
+                orderData[field] = value;
+            });
+
+            if (hasError) {
                 $('#btnCreate').prop('disabled', false).text('Đặt hàng');
-                return
+                return;
             }
-            data[$(inputs[i]).attr('id')] = $(inputs[i]).val();
-        }
 
-        data['c_total_product'] = $('#c_total_product').val();
-        data['c_discount_price'] = $('#c_discount_price').val();
-        data['coupon_id'] = $('#coupon_id').val();
-        data['c_total'] = $('#c_total').val();
+            // Thu thập thông tin bổ sung
+            orderData.d_address = $('#d_address').val()?.trim() || '';
+            orderData.c_order_notes = $('#c_order_notes').val()?.trim() || '';
+            
+            // Thu thập thông tin đơn hàng
+            orderData.c_total_product = parseFloat($('#c_total_product').val()) || 0;
+            orderData.c_discount_price = parseFloat($('#c_discount_price').val()) || 0;
+            orderData.c_total = parseFloat($('#c_total').val()) || 0;
+            orderData.coupon_id = $('#coupon_id').val() || null;
 
-        if (order_method === 'cod') {
-            data['order_method'] = 'Thanh toán khi nhận hàng';
-            await orderService.createOrder(data)
-                .then((res) => {
-                    if (res.status === 200) {
-                        setLoading(false)
-                        console.log(res.data)
-                        window.location.href = '/thanks-you';
-                    }
-                })
-                .catch((err) => {
-                    setLoading(false)
-                    $('#btnCreate').prop('disabled', false).text('Đặt hàng');
-                    console.log(err)
-                })
-        } else {
-            data['order_method'] = 'Ví điện tử';
-            await orderService.createOrderVnpay(data)
-                .then((res) => {
-                    if (res.status === 200) {
-                        setLoading(false)
-                        console.log(res.data)
-                        localStorage.setItem('order_info', JSON.stringify(data))
-                        // Chuyển qua trang thanh toán của VNPAY
-                        window.location.href = res.data.data;
-                    }
-                })
-                .catch((err) => {
-                    setLoading(false)
-                    $('#btnCreate').prop('disabled', false).text('Đặt hàng');
-                    console.log(err)
-                })
+            // Kiểm tra phương thức thanh toán
+            const order_method = $('input[name="order_method"]:checked').val();
+            if (!order_method) {
+                message.error('Vui lòng chọn phương thức thanh toán!');
+                $('#btnCreate').prop('disabled', false).text('Đặt hàng');
+                return;
+            }
+
+            // Thêm thông tin giỏ hàng
+            const cartItems = carts.map(cart => ({
+                product_id: cart.product.id,
+                quantity: cart.quantity,
+                price: cart.product.sale_price || cart.product.price,
+                attributes: cart.attribute || []
+            }));
+
+            orderData.cart_items = cartItems;
+            orderData.order_method = order_method === 'cod' ? 'Thanh toán khi nhận hàng' : 'Ví điện tử';
+
+            console.log('Sending order data:', orderData);
+
+            // Xử lý đặt hàng dựa trên phương thức thanh toán
+            if (order_method === 'cod') {
+                const response = await orderService.createOrder(orderData);
+                if (response.status === 200) {
+                    message.success('Đặt hàng thành công!');
+                    // Xóa dữ liệu giỏ hàng cũ
+                    localStorage.removeItem('cart_data');
+                    window.location.href = '/thanks-you';
+                }
+            } else {
+                const response = await orderService.createOrderVnpay(orderData);
+                if (response.status === 200) {
+                    // Lưu thông tin đơn hàng tạm thời
+                    localStorage.setItem('order_info', JSON.stringify(orderData));
+                    window.location.href = response.data.data;
+                }
+            }
+        } catch (error) {
+            console.error('Checkout error:', error);
+            message.error(error.response?.data?.message || 'Có lỗi xảy ra khi đặt hàng');
+            $('#btnCreate').prop('disabled', false).text('Đặt hàng');
         }
-    }
+    };
 
     const changeDiscountPrice = (coupon) => {
         coupon = coupon[0];
@@ -180,34 +219,37 @@ function Checkout() {
     }
 
     const calcTotal = () => {
-        let total = 0;
-        
-        // Tính tổng từ danh sách sản phẩm
-        carts.forEach(cart => {
-            const itemPrice = cart.product.sale_price || cart.product.price;
-            const itemTotal = itemPrice * cart.quantity;
-            total += itemTotal;
-        });
+        try {
+            let total = 0;
+            
+            // Kiểm tra và tính tổng từ danh sách sản phẩm hợp lệ
+            carts.forEach(cart => {
+                if (cart && cart.product && typeof cart.quantity === 'number') {
+                    const itemPrice = cart.product.sale_price || cart.product.price || 0;
+                    const itemTotal = itemPrice * cart.quantity;
+                    total += itemTotal;
+                }
+            });
 
-        // Cập nhật tổng tiền sản phẩm
-        $('#c_total_product').val(total);
-        $('#CartSubtotal').text(ConvertNumber(total));
+            // Cập nhật tổng tiền sản phẩm
+            $('#c_total_product').val(total);
+            $('#CartSubtotal').text(ConvertNumber(total));
 
-        // Tính giảm giá
-        const priceDiscount = parseInt($('#c_discount_price').val() || 0);
-        
-        // Tính tổng cuối cùng
-        let finalTotal = total - priceDiscount;
-        if (finalTotal < 0) finalTotal = 0;
+            // Tính giảm giá an toàn
+            const priceDiscount = parseInt($('#c_discount_price').val() || 0);
+            
+            // Tính tổng cuối cùng
+            let finalTotal = Math.max(0, total - priceDiscount);
 
-        // Cập nhật tổng đơn hàng ở tất cả các vị trí hiển thị
-        $('#c_total').val(finalTotal);
-        $('#OrderTotal').text(ConvertNumber(finalTotal));
-        $('#OrderTotalButton').text(ConvertNumber(finalTotal));
-
-        // Cập nhật state để trigger re-render nếu cần
-        setLoading(false);
-    }
+            // Cập nhật tổng đơn hàng
+            $('#c_total').val(finalTotal);
+            $('#OrderTotal').text(ConvertNumber(finalTotal));
+            $('#OrderTotalButton').text(ConvertNumber(finalTotal));
+        } catch (error) {
+            console.error('Error calculating total:', error);
+            message.error('Có lỗi xảy ra khi tính tổng đơn hàng');
+        }
+    };
 
     useEffect(() => {
         getListProductCart();
@@ -382,37 +424,50 @@ function Checkout() {
                                             <div className="order-items-container">
                                                 <div className="order-items">
                                                     {carts.map((cart, index) => {
-                                                        const itemPrice = cart.product.sale_price || cart.product.price;
-                                                        const itemTotal = itemPrice * cart.quantity;
+                                                        // Kiểm tra tính hợp lệ của dữ liệu
+                                                        if (!cart || !cart.product) return null;
+
+                                                        const itemPrice = cart.product.sale_price || cart.product.price || 0;
+                                                        const itemTotal = itemPrice * (cart.quantity || 0);
                                                         
                                                         return (
                                                             <motion.div 
                                                                 key={index}
+                                                                className="order-item"
                                                                 initial={{ opacity: 0, y: 10 }}
                                                                 animate={{ opacity: 1, y: 0 }}
                                                                 transition={{ delay: index * 0.1 }}
-                                                                className="order-item"
                                                             >
                                                                 <div className="product-info">
                                                                     <div className="product-image">
                                                                         <img 
-                                                                            src={`http://127.0.0.1:8000${cart.product.thumbnail}`}
-                                                                            alt={cart.product.name}
+                                                                            src={cart.product.thumbnail ? 
+                                                                                `http://127.0.0.1:8000${cart.product.thumbnail}` : 
+                                                                                'path_to_default_image'}
+                                                                            alt={cart.product.name || 'Sản phẩm'}
+                                                                            onError={(e) => {
+                                                                                e.target.onerror = null;
+                                                                                e.target.src = 'path_to_default_image';
+                                                                            }}
                                                                         />
                                                                         <span className="quantity-badge">
-                                                                            {cart.quantity}
+                                                                            {cart.quantity || 0}
                                                                         </span>
                                                                     </div>
                                                                     <div className="product-details">
-                                                                        <h3 className="product-name">{cart.product.name}</h3>
+                                                                        <h3 className="product-name">
+                                                                            {cart.product.name || 'Sản phẩm không xác định'}
+                                                                        </h3>
                                                                         <div className="product-meta">
-                                                                            {cart.attribute.map((item1, index1) => (
-                                                                                <span key={index1} className="variant-tag">
-                                                                                    {item1.property.name}
-                                                                                </span>
-                                                                            ))}
+                                                                            {cart.attribute && Array.isArray(cart.attribute) && 
+                                                                                cart.attribute.map((attr, idx) => (
+                                                                                    <span key={idx} className="variant-tag">
+                                                                                        {attr?.property?.name || ''}
+                                                                                    </span>
+                                                                                ))
+                                                                            }
                                                                             <span className="price-tag">
-                                                                                {ConvertNumber(itemPrice)} x {cart.quantity}
+                                                                                {ConvertNumber(itemPrice)} x {cart.quantity || 0}
                                                                             </span>
                                                                         </div>
                                                                     </div>

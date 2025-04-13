@@ -122,10 +122,19 @@ class OrderApi extends Api
                 $order['product'] = $product->toArray();
 
                 $product_option = ProductOptions::where('id', $item->value)->first();
-                $order['product_options'] = $product_option->toArray();
+                $order['product_options'] = isset($product_option) ? $product_option->toArray() : [];
 
-                $dataArray = $product_option->value;
-                $dataArray = json_decode($dataArray, true);
+                $dataArray = [];
+
+                if (!empty($product_option) && is_string($product_option->value)) {
+                    $decoded = json_decode($product_option->value, true);
+
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        $dataArray = $decoded;
+                    } else {
+                        $dataArray = [];
+                    }
+                }
 
                 $dataConvert = [];
                 foreach ($dataArray as $op) {
@@ -221,6 +230,8 @@ class OrderApi extends Api
 
             $order_items->each(function ($item) {
                 $option = ProductOptions::find($item->value);
+                if($option){
+
                 $option->quantity = $option->quantity + $item->quantity;
                 $option->save();
 
@@ -228,6 +239,9 @@ class OrderApi extends Api
                 $product->quantity = $product->quantity + $item->quantity;
 
                 $product->save();
+                }
+
+
             });
 
             $order_history = new OrderHistories();

@@ -45,8 +45,9 @@ function ProductDetail() {
     const [thumbsSwiper, setThumbsSwiper] = useState(null);
     const [isWishlist, setIsWishlist] = useState(false);
     const [activeTab, setActiveTab] = useState('description');
-    const [quantity, setQuantity] = useState(1);
+    const [quantity] = useState(1);
     const [selectedOptions, setSelectedOptions] = useState({});
+    const [availableOptions, setAvailableOptions] = useState({});
     const [isLoading, setIsLoading] = useState(true);
 
     const getProduct = async () => {
@@ -68,9 +69,45 @@ function ProductDetail() {
                     sku: ''
                 });
                 setProductOthers(productData.other_products || []);
-                setOptionsProduct(productData.product?.options || []);
-            } else {
-                message.error('Không thể tải thông tin sản phẩm');
+                
+                // Khởi tạo options từ API
+                const options = productData.product?.options || [];
+                setOptionsProduct(options);
+
+                // Tạo object chứa các option có sẵn
+                const availableOpts = {};
+                const newSelectedOptions = {};
+                
+                options.forEach(option => {
+                    if (option.properties && option.properties.length > 0) {
+                        availableOpts[option.attribute.id] = option.properties.map(prop => prop.id);
+                        // Tự động chọn option đầu tiên cho mỗi thuộc tính
+                        newSelectedOptions[option.attribute.id] = option.properties[0].id;
+                    }
+                });
+                
+                setAvailableOptions(availableOpts);
+                setSelectedOptions(newSelectedOptions);
+
+                // Nếu có options, gọi API để lấy thông tin variant
+                if (Object.keys(newSelectedOptions).length > 0) {
+                    const selectedValues = options
+                        .map(opt => newSelectedOptions[opt.attribute.id])
+                        .filter(Boolean)
+                        .join(',');
+
+                    const variantResponse = await productService.optionProduct(selectedValues, id);
+                    if (variantResponse.status === 200 && variantResponse.data?.data) {
+                        const variantData = variantResponse.data.data;
+                        setProduct(prev => ({
+                            ...prev,
+                            sale_price: variantData.sale_price ?? prev.sale_price,
+                            price: variantData.price ?? prev.price,
+                            quantity: variantData.quantity ?? 0,
+                            sku: variantData.sku ?? prev.sku
+                        }));
+                    }
+                }
             }
         } catch (err) {
             console.error('Error fetching product:', err);
@@ -108,85 +145,138 @@ function ProductDetail() {
             });
     }
 
-    const selectOption = async (attributeId, propertyId, propertyName) => {
+    const handleOptionSelect = async (attributeId, propertyId) => {
         try {
             setIsLoading(true);
-            
-            // Update selected options state
-            setSelectedOptions(prev => ({
-                ...prev,
-                [attributeId]: { id: propertyId, name: propertyName }
-            }));
 
-            // Get all selected option values
-            const selectedOptionValues = Object.values(selectedOptions).map(opt => opt.id);
-            selectedOptionValues.push(propertyId);
-            
-            const list_option = selectedOptionValues.join(',');
-            
-            const response = await productService.optionProduct(list_option, id);
-            
-            if (response.status === 200 && response.data?.data) {
-                const pro_op = response.data.data;
-                setProduct(prev => ({
-                    ...prev,
-                    sale_price: pro_op.sale_price || prev.sale_price,
-                    price: pro_op.price || prev.price,
-                    quantity: pro_op.quantity || prev.quantity
-                }));
+            // Cập nhật selectedOptions
+            const newSelectedOptions = {
+                ...selectedOptions,
+                [attributeId]: propertyId
+            };
+            setSelectedOptions(newSelectedOptions);
+
+            // Kiểm tra xem đã chọn đủ thuộc tính bắt buộc chưa
+            const requiredOptions = optionsProduct.filter(opt => opt.required);
+            const allRequiredSelected = requiredOptions.every(opt => 
+                newSelectedOptions[opt.attribute.id]
+            );
+
+            if (allRequiredSelected) {
+                // Tạo chuỗi values từ tất cả các options đã chọn theo thứ tự của optionsProduct
+                const selectedValues = optionsProduct
+                    .map(opt => newSelectedOptions[opt.attribute.id])
+                    .filter(Boolean)
+                    .join(',');
+
+                console.log('Selected values:', selectedValues);
+
+                // Gọi API để lấy thông tin variant
+                const response = await productService.optionProduct(selectedValues, id);
+                
+                if (response.status === 200 && response.data?.data) {
+                    const variantData = response.data.data;
+                    console.log('Variant data:', variantData);
+                    
+                    setProduct(prev => ({
+                        ...prev,
+                        sale_price: variantData.sale_price ?? prev.sale_price,
+                        price: variantData.price ?? prev.price,
+                        quantity: variantData.quantity ?? 0,
+                        sku: variantData.sku ?? prev.sku
+                    }));
+                }
             }
         } catch (err) {
             console.error('Error selecting option:', err);
-            message.error('Không tìm thấy thuộc tính hợp lệ!');
+            message.error('Không tìm thấy phiên bản sản phẩm phù hợp');
         } finally {
             setIsLoading(false);
         }
     };
 
+    // Cập nhật phần render của option
+    const renderOptionValues = (option) => {
+        if (!option.properties || option.properties.length === 0) {
+            return <p className="mb-0 small text-muted">Không có thuộc tính</p>;
+        }
+
+        return option.properties.map((property, propertyIndex) => {
+            const isSelected = selectedOptions[option.attribute.id] === property.id;
+            
+            return (
+                <Tooltip title={property.name} key={propertyIndex}>
+                    <div 
+                        className={`option-value ${isSelected ? 'selected' : ''}`}
+                        onClick={() => handleOptionSelect(option.attribute.id, property.id)}
+                    >
+                        {property.name}
+                        {option.required && !selectedOptions[option.attribute.id] && 
+                            <span className="text-danger ms-1">*</span>
+                        }
+                    </div>
+                </Tooltip>
+            );
+        });
+    };
+
     const addToCart = async () => {
         try {
             setIsLoading(true);
-            
-            // Check if all required options are selected
-            const requiredOptions = optionsProduct.filter(opt => opt.required);
-            const missingOptions = requiredOptions.filter(opt => !selectedOptions[opt.attribute.id]);
-            
+
+            // Kiểm tra tồn kho
+            if (!product || product.quantity <= 0) {
+                message.warning('Sản phẩm đã hết hàng');
+                return;
+            }
+
+            // Kiểm tra thuộc tính bắt buộc
+            const missingOptions = [];
+            if (optionsProduct && optionsProduct.length > 0) {
+                optionsProduct.forEach(option => {
+                    if (option.required && !selectedOptions[option.attribute.id]) {
+                        missingOptions.push(option.attribute.name);
+                    }
+                });
+            }
+
             if (missingOptions.length > 0) {
-                message.warning('Vui lòng chọn đầy đủ thuộc tính sản phẩm');
+                message.warning(`Vui lòng chọn ${missingOptions.join(', ')}`);
                 return;
             }
 
-            // Check if quantity is valid
-            if (!quantity || quantity < 1) {
-                message.warning('Vui lòng chọn số lượng hợp lệ');
-                return;
-            }
+            // Tạo chuỗi values từ tất cả các options đã chọn theo thứ tự của optionsProduct
+            const selectedValues = optionsProduct
+                .map(opt => selectedOptions[opt.attribute.id])
+                .filter(Boolean)
+                .join(',');
 
-            if (quantity > product.quantity) {
-                message.warning(`Chỉ còn ${product.quantity} sản phẩm trong kho`);
-                return;
-            }
+            console.log('Adding to cart with values:', selectedValues);
 
+            // Chuẩn bị dữ liệu gửi đi
             const data = {
-                product_id: id,
-                values: Object.values(selectedOptions).map(opt => opt.id).join(','),
-                quantity: quantity
+                product_id: parseInt(id),
+                values: selectedValues,
+                quantity: 1
             };
 
             const response = await cartService.createCart(data);
             
             if (response.status === 200) {
-                message.success('Thêm sản phẩm vào giỏ hàng thành công!');
-            } else {
-                message.error(response.data.message || 'Có lỗi xảy ra');
+                if (response.data.status === "error") {
+                    message.error(response.data.message || 'Có lỗi xảy ra');
+                    return;
+                }
+                message.success('Thêm vào giỏ hàng thành công!');
             }
         } catch (err) {
             console.error('Add to cart error:', err);
-            const messageText = err.response?.data?.message || err.response?.data?.status || 'Có lỗi xảy ra';
-            message.error(messageText);
-            
             if (err.response?.status === 444 || err.response?.status === 401) {
-                window.location.href = '/login';
+                message.warning('Vui lòng đăng nhập để mua hàng');
+            } else if (err.response?.data?.message) {
+                message.error(err.response.data.message);
+            } else {
+                message.error('Có lỗi xảy ra khi thêm vào giỏ hàng');
             }
         } finally {
             setIsLoading(false);
@@ -196,15 +286,6 @@ function ProductDetail() {
     const toggleWishlist = () => {
         setIsWishlist(!isWishlist);
         message.success(isWishlist ? 'Đã xóa khỏi danh sách yêu thích' : 'Đã thêm vào danh sách yêu thích');
-    }
-
-    const handleQuantityChange = (value) => {
-        if (value < 1) return;
-        if (value > product.quantity) {
-            message.warning(`Chỉ còn ${product.quantity} sản phẩm`);
-            return;
-        }
-        setQuantity(value);
     }
 
     useEffect(() => {
@@ -266,8 +347,8 @@ function ProductDetail() {
                                         ))
                                         : 
                                         <SwiperSlide>
-                                            <img 
-                                                src={`http://127.0.0.1:8000${product.thumbnail}`}
+                            <img
+                                src={`http://127.0.0.1:8000${product.thumbnail}`}
                                                 alt={product.name}
                                                 style={{ width: '100%', height: 'auto' }}
                                             />
@@ -318,10 +399,10 @@ function ProductDetail() {
                                         </div>
                                         <div className="product-sku small text-muted">
                                             Mã SP: <span className="fw-medium">{product.sku || 'N/A'}</span>
-                                        </div>
+                            </div>
                                     </div>
-                                </div>
-                                
+                                    </div>
+
                                 {/* Product Price Display */}
                                 <div className="product-price-wrapper mb-4">
                                     <div className="d-flex align-items-baseline">
@@ -346,10 +427,10 @@ function ProductDetail() {
                                         )}
                                     </div>
                                 </div>
-                                
+
                                 <div className="product-description mb-4">
                                     <div className="short-desc" dangerouslySetInnerHTML={{ __html: product.short_description }}></div>
-                                </div>
+                            </div>
 
                                 <div className="product-stock mb-4">
                                     <div className="d-flex align-items-center">
@@ -363,8 +444,8 @@ function ProductDetail() {
                                             </span>
                                         )}
                                     </div>
-                                </div>
-                                
+                                    </div>
+
                                 {/* Product Options */}
                                 {optionsProduct.length > 0 && (
                                     <div className="product-options mb-4">
@@ -372,60 +453,13 @@ function ProductDetail() {
                                             <div className="option-group mb-3" key={optionIndex}>
                                                 <h6 className="option-name small fw-medium mb-2">{option.attribute.name}</h6>
                                                 <div className="option-values d-flex flex-wrap gap-2">
-                                                    {option.properties && option.properties.length > 0 ? (
-                                                        option.properties.map((property, propertyIndex) => {
-                                                            const isSelected = selectedOptions[option.attribute.id]?.id === property.id;
-                                                            return (
-                                                                <Tooltip title={property.name} key={propertyIndex}>
-                                                                    <div 
-                                                                        className={`option-value ${isSelected ? 'selected' : ''}`}
-                                                                        onClick={() => selectOption(option.attribute.id, property.id, property.name)}
-                                                                    >
-                                                                        {property.name}
-                                                                    </div>
-                                                                </Tooltip>
-                                                            );
-                                                        })
-                                                    ) : (
-                                                        <p className="mb-0 small text-muted">Không có thuộc tính</p>
-                                                    )}
+                                                    {renderOptionValues(option)}
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 )}
                                 
-                                {/* Quantity Selector */}
-                                <div className="quantity-selector mb-4">
-                                    <span className="quantity-label small fw-medium me-3">Số lượng:</span>
-                                    <div className="quantity-controls d-inline-flex align-items-center">
-                                        <button 
-                                            type="button"
-                                            className="quantity-btn" 
-                                            onClick={() => handleQuantityChange(quantity - 1)}
-                                            disabled={quantity <= 1}
-                                        >
-                                            <FaChevronLeft />
-                                        </button>
-                                        <input 
-                                            type="number" 
-                                            className="quantity-input" 
-                                            value={quantity} 
-                                            onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
-                                            min="1"
-                                            max={product.quantity}
-                                        />
-                                        <button 
-                                            type="button"
-                                            className="quantity-btn" 
-                                            onClick={() => handleQuantityChange(quantity + 1)}
-                                            disabled={quantity >= product.quantity}
-                                        >
-                                            <FaChevronRight />
-                                        </button>
-                                    </div>
-                                </div>
-
                                 {/* Action Buttons */}
                                 <div className="product-actions d-flex flex-wrap gap-2">
                                     <button 
@@ -442,7 +476,7 @@ function ProductDetail() {
                                         onClick={toggleWishlist}
                                     >
                                         {isWishlist ? <FaHeart /> : <FaRegHeart />}
-                                    </button>
+                                </button>
                                 </div>
                             </div>
                         </div>
@@ -469,7 +503,7 @@ function ProductDetail() {
                                     >
                                         Vận chuyển & Hoàn trả
                                     </div>
-                                </div>
+                        </div>
                                 
                                 <div className="tabs-content">
                                     {activeTab === 'description' && (
@@ -498,7 +532,7 @@ function ProductDetail() {
                                                                     <div className="reviewer-info">
                                                                         <h6 className="reviewer-name mb-0">{review.user.email}</h6>
                                                                         <div className="review-rating">
-                                                                            {Array.from({ length: 5 }).map((_, i) => (
+                                                {Array.from({ length: 5 }).map((_, i) => (
                                                                                 <span key={i} className={i < review.stars ? 'star-filled' : 'star-empty'}>
                                                                                     {i < review.stars ? <FaStar /> : <FaRegStar />}
                                                                                 </span>
@@ -529,7 +563,7 @@ function ProductDetail() {
                                                 <h5 className="mt-4">Chính sách hoàn trả</h5>
                                                 <p>Chúng tôi chấp nhận hoàn trả sản phẩm trong vòng 30 ngày kể từ ngày nhận hàng nếu sản phẩm có lỗi hoặc không đúng như mô tả.</p>
                                             </div>
-                                        </div>
+                                    </div>
                                     )}
                                 </div>
                             </div>
@@ -548,10 +582,10 @@ function ProductDetail() {
                     </div>
                     <div className="row">
                         <div className="col-md-12">
-                            <Swiper
+                                <Swiper
                                 slidesPerView={1}
                                 spaceBetween={20}
-                                pagination={{ clickable: true }}
+                                    pagination={{ clickable: true }}
                                 modules={[Pagination, Navigation]}
                                 navigation={true}
                                 breakpoints={{
@@ -572,10 +606,10 @@ function ProductDetail() {
                                         <SwiperSlide key={index}>
                                             <div className="product-card">
                                                 <div className="product-card-image">
-                                                    <img
-                                                        src={`http://127.0.0.1:8000${product.thumbnail || "/assets/clients/images/cloth_1.jpg"}`}
+                                                        <img
+                                                            src={`http://127.0.0.1:8000${product.thumbnail || "/assets/clients/images/cloth_1.jpg"}`}
                                                         alt={product.name || "Product Name"}
-                                                        className="img-fluid"
+                                                            className="img-fluid"
                                                     />
                                                     <div className="product-card-actions">
                                                         <button className="action-btn">
@@ -591,7 +625,7 @@ function ProductDetail() {
                                                         <a href={'/products/' + product.id}>
                                                             {product.name || "Product Name"}
                                                         </a>
-                                                    </h3>
+                                                        </h3>
                                                     <div className="product-card-price">
                                                         <span className="sale-price">
                                                             {ConvertNumber(product.sale_price || 0)}
@@ -613,7 +647,7 @@ function ProductDetail() {
                                         </div>
                                     </SwiperSlide>
                                 )}
-                            </Swiper>
+                                </Swiper>
                         </div>
                     </div>
                 </div>
@@ -809,6 +843,7 @@ function ProductDetail() {
                 .product-actions {
                     display: flex;
                     gap: 1rem;
+                    margin-top: 1.5rem;
                 }
 
                 .btn {
