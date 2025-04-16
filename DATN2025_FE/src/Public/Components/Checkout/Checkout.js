@@ -17,6 +17,7 @@ function Checkout() {
     const [loading, setLoading] = useState(true);
     const [carts, setCarts] = useState([]);
     const [users, setUsers] = useState([]);
+    const [submitting, setSubmitting] = useState(false);
     const navigate = useNavigate();
 
     const getUser = async () => {
@@ -70,29 +71,29 @@ function Checkout() {
     };
 
     const getCoupon = async () => {
-        LoadingPage();
-        let code = $('#coupon_code').val().trim();
-        await couponService.searchMyCoupon(code)
-            .then((res) => {
-                if (res.status === 200) {
-                    console.log("coupon", res.data.data)
-                    changeDiscountPrice(res.data.data)
-                    LoadingPage();
-                } else {
-                    alert('Không tìm thấy mã giảm giá hợp lệ')
-                    LoadingPage();
-                }
-            })
-            .catch((err) => {
-                alert('Không tìm thấy mã giảm giá hợp lệ')
-                LoadingPage();
-                console.log(err);
-            })
+        try {
+            setSubmitting(true);
+            let code = $('#coupon_code').val().trim();
+            const res = await couponService.searchMyCoupon(code);
+            
+            if (res.status === 200) {
+                console.log("coupon", res.data.data);
+                changeDiscountPrice(res.data.data);
+                message.success('Áp dụng mã giảm giá thành công');
+            } else {
+                message.error('Không tìm thấy mã giảm giá hợp lệ');
+            }
+        } catch (err) {
+            message.error('Không tìm thấy mã giảm giá hợp lệ');
+            console.log(err);
+        } finally {
+            setSubmitting(false);
+        }
     }
 
     const CheckoutCart = async () => {
         try {
-            $('#btnCreate').prop('disabled', true).text('Đang đặt hàng...');
+        $('#btnCreate').prop('disabled', true).text('Đang đặt hàng...');
             
             // Validate required fields
             const requiredFields = {
@@ -152,15 +153,15 @@ function Checkout() {
             console.log('Sending order data:', orderData);
 
             // Xử lý đặt hàng dựa trên phương thức thanh toán
-            if (order_method === 'cod') {
+        if (order_method === 'cod') {
                 const response = await orderService.createOrder(orderData);
                 if (response.status === 200) {
                     message.success('Đặt hàng thành công!');
                     // Xóa dữ liệu giỏ hàng cũ
                     localStorage.removeItem('cart_data');
-                    window.location.href = '/thanks-you';
-                }
-            } else {
+                        window.location.href = '/thanks-you';
+                    }
+        } else {
                 const response = await orderService.createOrderVnpay(orderData);
                 if (response.status === 200) {
                     // Lưu thông tin đơn hàng tạm thời
@@ -171,7 +172,7 @@ function Checkout() {
         } catch (error) {
             console.error('Checkout error:', error);
             message.error(error.response?.data?.message || 'Có lỗi xảy ra khi đặt hàng');
-            $('#btnCreate').prop('disabled', false).text('Đặt hàng');
+                    $('#btnCreate').prop('disabled', false).text('Đặt hàng');
         }
     };
 
@@ -220,7 +221,7 @@ function Checkout() {
 
     const calcTotal = () => {
         try {
-            let total = 0;
+        let total = 0;
             
             // Kiểm tra và tính tổng từ danh sách sản phẩm hợp lệ
             carts.forEach(cart => {
@@ -232,7 +233,7 @@ function Checkout() {
             });
 
             // Cập nhật tổng tiền sản phẩm
-            $('#c_total_product').val(total);
+        $('#c_total_product').val(total);
             $('#CartSubtotal').text(ConvertNumber(total));
 
             // Tính giảm giá an toàn
@@ -257,7 +258,7 @@ function Checkout() {
 
     useEffect(() => {
         if (carts.length > 0) {
-            calcTotal();
+        calcTotal();
         }
     }, [carts]);
 
@@ -270,8 +271,8 @@ function Checkout() {
             <Header />
             
             <div className="checkout-header">
-                <div className="container">
-                    <div className="row">
+            <div className="container">
+                <div className="row">
                         <div className="col-md-12">
                             <nav className="custom-breadcrumb" aria-label="breadcrumb">
                                 <ol className="breadcrumb">
@@ -293,16 +294,16 @@ function Checkout() {
                             </nav>
                         </div>
                     </div>
-                </div>
             </div>
+        </div>
 
             <div className="checkout-main">
-                <div className="container">
+            <div className="container">
                     <AnimatePresence>
                         {loading ? (
                             <div className="loading-container">
                                 <Spin size="large" />
-                                <p>Đang tải thông tin...</p>
+                                <span className="ms-2">Đang tải...</span>
                             </div>
                         ) : carts.length === 0 ? (
                             <motion.div 
@@ -332,10 +333,10 @@ function Checkout() {
                                         <div className="section-header">
                                             <h2>Thông tin thanh toán</h2>
                                             <p>Vui lòng điền đầy đủ thông tin bên dưới</p>
-                                        </div>
+                            </div>
 
                                         <div className="form-container">
-                                            <div className="form-group">
+                            <div className="form-group">
                                                 <label htmlFor="full_name">
                                                     Họ và tên <span>*</span>
                                                 </label>
@@ -345,7 +346,7 @@ function Checkout() {
                                                     defaultValue={users.full_name}
                                                     required 
                                                 />
-                                            </div>
+                            </div>
 
                                             <div className="form-row">
                                                 <div className="form-group">
@@ -358,7 +359,7 @@ function Checkout() {
                                                         defaultValue={users.email}
                                                         required 
                                                     />
-                                                </div>
+                                </div>
 
                                                 <div className="form-group">
                                                     <label htmlFor="c_phone">
@@ -370,10 +371,10 @@ function Checkout() {
                                                         defaultValue={users.phone}
                                                         required 
                                                     />
-                                                </div>
-                                            </div>
+                                </div>
+                            </div>
 
-                                            <div className="form-group">
+                            <div className="form-group">
                                                 <label htmlFor="c_address">
                                                     Địa chỉ <span>*</span>
                                                 </label>
@@ -453,7 +454,7 @@ function Checkout() {
                                                                         <span className="quantity-badge">
                                                                             {cart.quantity || 0}
                                                                         </span>
-                                                                    </div>
+                            </div>
                                                                     <div className="product-details">
                                                                         <h3 className="product-name">
                                                                             {cart.product.name || 'Sản phẩm không xác định'}
@@ -469,9 +470,9 @@ function Checkout() {
                                                                             <span className="price-tag">
                                                                                 {ConvertNumber(itemPrice)} x {cart.quantity || 0}
                                                                             </span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
+                            </div>
+                        </div>
+                    </div>
                                                                 <div className="item-total">
                                                                     {ConvertNumber(itemTotal)}
                                                                 </div>
@@ -496,13 +497,13 @@ function Checkout() {
                                                     />
                                                     <button 
                                                         type="button" 
-                                                        onClick={getCoupon}
+                                                    onClick={getCoupon}
                                                         className="btn-apply-coupon"
                                                     >
                                                         Áp dụng
-                                                    </button>
-                                                </div>
-                                            </div>
+                                            </button>
+                                        </div>
+                                    </div>
 
                                             <div className="order-total">
                                                 <div className="total-row">
@@ -520,8 +521,8 @@ function Checkout() {
                                                 <div className="total-row grand-total">
                                                     <span>Tổng cộng</span>
                                                     <span id="OrderTotal">0đ</span>
-                                                </div>
-                                            </div>
+                                </div>
+                            </div>
 
                                             <div className="payment-methods">
                                                 <div className="section-header">
@@ -529,7 +530,7 @@ function Checkout() {
                                                         <FiCreditCard />
                                                         Phương thức thanh toán
                                                     </h3>
-                                                </div>
+                        </div>
                                                 
                                                 <div className="payment-options">
                                                     <label className="payment-option">
@@ -538,7 +539,7 @@ function Checkout() {
                                                             id="cod" 
                                                             name="order_method"
                                                             value="cod" 
-                                                            className="order_method"
+                                               className="order_method"
                                                             defaultChecked 
                                                         />
                                                         <div className="option-content">
@@ -565,9 +566,9 @@ function Checkout() {
                                                                 <small>Thanh toán qua ví điện tử hoặc thẻ ngân hàng</small>
                                                             </div>
                                                         </div>
-                                                    </label>
-                                                </div>
-                                            </div>
+                                        </label>
+                                    </div>
+                                    </div>
 
                                             <button 
                                                 type="submit" 
@@ -576,8 +577,8 @@ function Checkout() {
                                             >
                                                 <span>Đặt hàng</span>
                                                 <small>Tổng cộng: <span id="OrderTotalButton">0đ</span></small>
-                                            </button>
-                                        </div>
+                                        </button>
+                                    </div>
 
                                         <div className="d-none">
                                             <input type="hidden" id="c_total_product" name="c_total_product" />
@@ -589,9 +590,22 @@ function Checkout() {
                                 </div>
                             </Form>
                         )}
+
+                        {/* Add loading overlay when submitting */}
+                        {submitting && (
+                            <motion.div 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="loading-overlay"
+                            >
+                                <Spin size="large" />
+                                <span>Đang xử lý...</span>
+                            </motion.div>
+                        )}
                     </AnimatePresence>
-                </div>
-            </div>
+                            </div>
+                        </div>
 
             <Footer />
 
@@ -1156,6 +1170,26 @@ function Checkout() {
                         padding: 0 1.5rem;
                         max-height: 250px;
                     }
+                }
+
+                .loading-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(255, 255, 255, 0.8);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 1rem;
+                    z-index: 1000;
+                }
+
+                .loading-overlay span {
+                    color: #4a5568;
+                    font-size: 0.9rem;
                 }
             `}</style>
         </div>

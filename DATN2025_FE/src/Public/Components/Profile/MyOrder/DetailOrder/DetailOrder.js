@@ -32,10 +32,10 @@ function DetailOrder() {
 
         let data = { reason_cancel };
         try {
-            if (window.confirm('Bạn có chắc chắn muốn hủy đơn hàng?')) {
+        if (window.confirm('Bạn có chắc chắn muốn hủy đơn hàng?')) {
                 const res = await orderService.cancelOrder(id, data);
                 message.success('Hủy đơn hàng thành công!');
-                detailOrder();
+                    detailOrder();
             }
         } catch (err) {
             console.error(err);
@@ -71,7 +71,7 @@ function DetailOrder() {
     const listOrderHistories = async () => {
         try {
             const res = await orderService.listOrderHistories(id);
-            setOrderHistories(res.data.data);
+                setOrderHistories(res.data.data);
         } catch (err) {
             console.error(err);
             message.error('Không thể tải lịch sử đơn hàng');
@@ -156,17 +156,17 @@ function DetailOrder() {
                     <div className="order-header mb-4">
                         <h1 className="h3 mb-2">Chi tiết đơn hàng #{id}</h1>
                         <nav aria-label="breadcrumb">
-                            <ol className="breadcrumb">
+                        <ol className="breadcrumb">
                                 <li className="breadcrumb-item">
                                     <Link to="/profile">Người dùng</Link>
                                 </li>
                                 <li className="breadcrumb-item">
                                     <Link to="/profile/orders">Đơn hàng</Link>
                                 </li>
-                                <li className="breadcrumb-item active">Chi tiết đơn hàng</li>
-                            </ol>
-                        </nav>
-                    </div>
+                            <li className="breadcrumb-item active">Chi tiết đơn hàng</li>
+                        </ol>
+                    </nav>
+                </div>
 
                     <div className="row g-4">
                         <div className="col-lg-4">
@@ -218,8 +218,8 @@ function DetailOrder() {
                                         <div className="d-flex justify-content-between mt-3 pt-3 border-top">
                                             <span className="fw-medium">Tổng thanh toán</span>
                                             <span className="fw-bold fs-5 text-primary">{ConvertNumber(order.total_price)}</span>
-                                        </div>
-                                    </div>
+                                                </div>
+                                            </div>
 
                                     {order.notes && (
                                         <div className="order-notes mt-4">
@@ -249,16 +249,16 @@ function DetailOrder() {
                                                     <th scope="col" className="text-end">Đơn giá</th>
                                                     <th scope="col" className="text-end">Thành tiền</th>
                                                     <th scope="col"></th>
-                                                </tr>
-                                            </thead>
+                                                        </tr>
+                                                    </thead>
                                             <tbody>
                                                 {orderItems.map((item, index) => (
-                                                    <tr key={index}>
-                                                        <td>
+                                                                    <tr key={index}>
+                                                                        <td>
                                                             <div className="d-flex align-items-center gap-3">
-                                                                <img
+                                                                            <img
                                                                     src={`http://127.0.0.1:8000${item.product.thumbnail}`}
-                                                                    alt=""
+                                                                                alt=""
                                                                     width="60"
                                                                     className="rounded"
                                                                 />
@@ -269,26 +269,26 @@ function DetailOrder() {
                                                                             {attr.attribute.name}: {attr.property.name}
                                                                         </small>
                                                                     ))}
-                                                                </div>
-                                                            </div>
-                                                        </td>
+                                                                                            </div>
+                                                                            </div>
+                                                                        </td>
                                                         <td className="text-center">{item.quantity}</td>
                                                         <td className="text-end">{ConvertNumber(item.price)}</td>
                                                         <td className="text-end">{ConvertNumber(item.total)}</td>
                                                         <td className="text-end">
-                                                            {order.status === 'ĐÃ HOÀN THÀNH' && (
+                                                                            {order.status === 'ĐÃ HOÀN THÀNH' && (
                                                                 <Link 
                                                                     to={`/reviews/products?pro=${item.product_id}&order=${id}`}
                                                                     className="btn btn-sm btn-outline-primary"
                                                                 >
                                                                     Đánh giá
                                                                 </Link>
-                                                            )}
-                                                        </td>
-                                                    </tr>
+                                                                            )}
+                                                                        </td>
+                                                                    </tr>
                                                 ))}
-                                            </tbody>
-                                        </table>
+                                                    </tbody>
+                                                </table>
                                     </div>
                                 </div>
                             </motion.div>
@@ -316,22 +316,22 @@ function DetailOrder() {
                                                 </Timeline.Item>
                                             ))}
                                         </Timeline>
-                                    </div>
+                                                </div>
 
                                     <div className="order-history mt-4">
                                         <h6 className="mb-3">Lịch sử đơn hàng</h6>
-                                        <Table
-                                            columns={columns}
-                                            dataSource={orderHistories}
-                                            pagination={tableParams.pagination}
+                                                <Table
+                                                    columns={columns}
+                                                    dataSource={orderHistories}
+                                                    pagination={tableParams.pagination}
                                             onChange={(pagination, filters, sorter) => {
                                                 setTableParams({ pagination, filters, ...sorter });
                                             }}
                                             className="order-history-table"
-                                        />
-                                    </div>
+                                                />
+                                            </div>
 
-                                    {(order.status === 'CHỜ XÁC NHẬN' || order.status === 'ĐANG XỬ LÝ') && (
+                                            {(order.status === 'CHỜ XÁC NHẬN' || order.status === 'ĐANG XỬ LÝ') && (
                                         <div className="mt-4">
                                             <button 
                                                 type="button" 
@@ -339,12 +339,12 @@ function DetailOrder() {
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#cancelOrderModal"
                                             >
-                                                Hủy đơn hàng
-                                            </button>
+                                                    Hủy đơn hàng
+                                                </button>
                                         </div>
-                                    )}
+                                            )}
 
-                                    {order.reason_cancel && (
+                                            {order.reason_cancel && (
                                         <div className="mt-4 p-3 bg-light rounded">
                                             <h6 className="text-danger mb-2">Lý do hủy đơn hàng:</h6>
                                             <p className="mb-0">{order.reason_cancel}</p>
@@ -370,7 +370,7 @@ function DetailOrder() {
                                 <label htmlFor="reason_cancel" className="form-label">Lý do hủy đơn hàng</label>
                                 <textarea 
                                     id="reason_cancel" 
-                                    className="form-control" 
+                                    className="form-control"
                                     rows="4"
                                     placeholder="Vui lòng nhập lý do hủy đơn hàng của bạn..."
                                 ></textarea>

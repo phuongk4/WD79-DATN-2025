@@ -1,16 +1,16 @@
 import React, {useEffect, useState} from 'react'
 import Header from '../../Header/Header'
 import Sidebar from '../../Sidebar/Sidebar'
-import {Button, Form, Table} from 'antd';
+import {Button, Form, Table, Spin} from 'antd';
 import couponService from '../../../Service/CouponService';
 import {Link, useParams, useSearchParams} from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import $ from 'jquery';
 import ConvertNumber from "../../../Shared/Utils/ConvertNumber";
-import LoadingPage from "../../../Shared/Utils/LoadingPage";
 import reviewService from "../../../Service/ReviewService";
 import productService from "../../../Service/ProductService";
+import { message } from 'antd';
 
 function ReviewProduct() {
     const [searchParams] = useSearchParams();
@@ -19,79 +19,102 @@ function ReviewProduct() {
     const [isReview, setIsReview] = useState(false);
     const [order, setOrder] = useState('');
     const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
 
-    let pro = searchParams.get('pro') ?? '';
-    let or = searchParams.get('order') ?? '';
+    const pro = searchParams.get('pro') ?? '';
+    const or = searchParams.get('order') ?? '';
 
-    const getProduct = async () => {
-        await productService.detailProduct(pro)
-            .then((res) => {
-                if (res.status === 200) {
-                    setProduct(res.data.data.product);
-                    setLoading(false)
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                // Fetch product data
+                const productRes = await productService.detailProduct(pro);
+                if (productRes.status === 200) {
+                    setProduct(productRes.data.data.product);
                 }
-            })
-            .catch((err) => {
-                console.log(err)
-            })
-    }
 
-    const checkReviewProduct = async () => {
-        await reviewService.checkReviewByProduct(pro, or)
-            .then((res) => {
-                if (res.status === 200) {
-                    let check = res.data.data;
-                    console.log(check);
-                    if (check.valid == true) {
+                // Check review status
+                const reviewRes = await reviewService.checkReviewByProduct(pro, or);
+                if (reviewRes.status === 200) {
+                    const check = reviewRes.data.data;
+                    if (check.valid === true) {
                         setIsReview(true);
                         setOrder(check.order);
                         setReview(check.review);
                     }
                 }
-            })
-            .catch((err) => {
-                console.log(err)
-            })
-    }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                message.error('Có lỗi xảy ra khi tải dữ liệu');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (pro && or) {
+            fetchData();
+        }
+    }, [pro, or]);
 
     const reviewProduct = async () => {
-        LoadingPage();
-        $('#btnSendReview').prop('disabled', true).text('Đang gửi đánh giá...');
+        try {
+            setSubmitting(true);
 
-        let inputs = $('#formReviewProduct input, #formReviewProduct textarea, #formReviewProduct select');
-        for (let i = 0; i < inputs.length; i++) {
-            if (!$(inputs[i]).val() && $(inputs[i]).attr('type') != 'radio' && $(inputs[i]).attr('type') != 'hidden') {
-                let text = $(inputs[i]).prev().text();
-                alert(text + ' không được bỏ trống!');
-                $('#btnSendReview').prop('disabled', false).text('Gửi đánh giá');
-                return
+            // Validate star rating
+            const selectedStar = $('input[name="stars"]:checked').val();
+            if (!selectedStar) {
+                message.error('Vui lòng chọn số sao đánh giá!');
+                return;
             }
+
+            // Get form values
+            const title = $('#title').val();
+            const content = $('#content').val();
+            const order_id = $('#order_id').val();
+            const product_id = $('#product_id').val();
+
+            // Validate required fields
+            if (!title.trim()) {
+                message.error('Tiêu đề không được bỏ trống!');
+                return;
+            }
+
+            if (!content.trim()) {
+                message.error('Nội dung không được bỏ trống!');
+                return;
+            }
+
+            // Create review data object
+            const reviewData = {
+                stars: parseInt(selectedStar),
+                title: title.trim(),
+                content: content.trim(),
+                order_id: parseInt(order_id),
+                product_id: parseInt(product_id)
+            };
+
+            // Send review
+            const response = await reviewService.sendReview(reviewData);
+            
+            if (response.status === 200) {
+                message.success('Đánh giá sản phẩm thành công!');
+                window.history.back();
+            }
+        } catch (error) {
+            console.error('Error submitting review:', error);
+            message.error('Đã xảy ra lỗi. Vui lòng thử lại sau');
+        } finally {
+            setSubmitting(false);
         }
+    };
 
-        const formData = new FormData($('#formReviewProduct')[0]);
-
-        await reviewService.sendReview(formData)
-            .then((res) => {
-                if (res.status === 200) {
-                    console.log(res)
-                    alert('Đánh giá sản phẩm thành công!')
-                    LoadingPage();
-                    window.history.back();
-                }
-            })
-            .catch((err) => {
-                alert('Đã xảy ra lỗi. Vui lòng thử lại sau')
-                LoadingPage();
-                console.log(err)
-                $('#btnSendReview').prop('disabled', false).text('Gửi đánh giá');
-            })
+    if (loading) {
+        return <div className="loading-container">
+            <Spin size="large" />
+            <span className="ms-2">Đang tải...</span>
+        </div>;
     }
-
-
-    useEffect(() => {
-        getProduct();
-        checkReviewProduct();
-    }, [loading]);
 
     return (
         <>
@@ -152,8 +175,8 @@ function ReviewProduct() {
                                     <input type="hidden" id="order_id" name="order_id" value={or}/>
                                     <input type="hidden" id="product_id" name="product_id" value={pro}/>
                                 </div>
-                                <button type="submit" className="btn btn-secondary mt-2" id="btnSendReview">
-                                    Gửi đánh giá
+                                <button type="submit" className="btn btn-secondary mt-2" id="btnSendReview" disabled={submitting}>
+                                    {submitting ? 'Đang gửi đánh giá...' : 'Gửi đánh giá'}
                                 </button>
                             </Form>
                         </div>

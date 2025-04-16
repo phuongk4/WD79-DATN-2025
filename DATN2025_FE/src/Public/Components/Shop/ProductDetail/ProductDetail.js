@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Form, message, Rate, Badge, Tooltip } from 'antd';
+import React, {useEffect, useState} from 'react';
+import {useParams} from 'react-router-dom';
+import {Badge, Form, message, Rate, Tooltip} from 'antd';
 import cartService from '../../Service/CartService';
 import Header from "../../Shared/Client/Header/Header";
 import Footer from "../../Shared/Client/Footer/Footer";
 import productService from "../../Service/ProductService";
 import reviewService from "../../Service/ReviewService";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Zoom, Navigation, Thumbs, Autoplay } from "swiper/modules";
+import {Swiper, SwiperSlide} from "swiper/react";
+import {FreeMode, Navigation, Pagination, Thumbs} from "swiper/modules";
 import LoadingPage from "../../Shared/Utils/LoadingPage";
 import ConvertNumber from "../../Shared/Utils/ConvertNumber";
-import { FaShoppingCart, FaRegHeart, FaHeart, FaStar, FaRegStar, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { motion } from 'framer-motion';
+import {FaHeart, FaRegHeart, FaRegStar, FaShoppingCart, FaStar} from 'react-icons/fa';
+import {motion} from 'framer-motion';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
@@ -19,7 +19,6 @@ import 'swiper/css/zoom';
 import 'swiper/css/thumbs';
 import 'swiper/css/autoplay';
 import 'swiper/css/free-mode';
-import { FreeMode } from 'swiper/modules';
 
 /**
  * This component renders a page with details of a single product.
@@ -27,7 +26,7 @@ import { FreeMode } from 'swiper/modules';
  * @returns {JSX.Element} The component to be rendered.
  */
 function ProductDetail() {
-    const { id } = useParams();
+    const {id} = useParams();
     const [product, setProduct] = useState({
         name: '',
         sale_price: 0,
@@ -37,6 +36,7 @@ function ProductDetail() {
         gallery: '',
         description: '',
         short_description: '',
+        variantDataID: '',
         sku: ''
     });
     const [reviews, setReviews] = useState([]);
@@ -54,7 +54,7 @@ function ProductDetail() {
         try {
             setIsLoading(true);
             const response = await productService.detailProduct(id);
-            
+
             if (response.status === 200 && response.data?.data) {
                 const productData = response.data.data;
                 setProduct(productData.product || {
@@ -69,7 +69,7 @@ function ProductDetail() {
                     sku: ''
                 });
                 setProductOthers(productData.other_products || []);
-                
+
                 // Khởi tạo options từ API
                 const options = productData.product?.options || [];
                 setOptionsProduct(options);
@@ -77,7 +77,7 @@ function ProductDetail() {
                 // Tạo object chứa các option có sẵn
                 const availableOpts = {};
                 const newSelectedOptions = {};
-                
+
                 options.forEach(option => {
                     if (option.properties && option.properties.length > 0) {
                         availableOpts[option.attribute.id] = option.properties.map(prop => prop.id);
@@ -85,7 +85,7 @@ function ProductDetail() {
                         newSelectedOptions[option.attribute.id] = option.properties[0].id;
                     }
                 });
-                
+
                 setAvailableOptions(availableOpts);
                 setSelectedOptions(newSelectedOptions);
 
@@ -158,7 +158,7 @@ function ProductDetail() {
 
             // Kiểm tra xem đã chọn đủ thuộc tính bắt buộc chưa
             const requiredOptions = optionsProduct.filter(opt => opt.required);
-            const allRequiredSelected = requiredOptions.every(opt => 
+            const allRequiredSelected = requiredOptions.every(opt =>
                 newSelectedOptions[opt.attribute.id]
             );
 
@@ -173,16 +173,17 @@ function ProductDetail() {
 
                 // Gọi API để lấy thông tin variant
                 const response = await productService.optionProduct(selectedValues, id);
-                
+
                 if (response.status === 200 && response.data?.data) {
                     const variantData = response.data.data;
                     console.log('Variant data:', variantData);
-                    
+
                     setProduct(prev => ({
                         ...prev,
                         sale_price: variantData.sale_price ?? prev.sale_price,
                         price: variantData.price ?? prev.price,
                         quantity: variantData.quantity ?? 0,
+                        variantDataID: variantData.id,
                         sku: variantData.sku ?? prev.sku
                     }));
                 }
@@ -203,15 +204,15 @@ function ProductDetail() {
 
         return option.properties.map((property, propertyIndex) => {
             const isSelected = selectedOptions[option.attribute.id] === property.id;
-            
+
             return (
                 <Tooltip title={property.name} key={propertyIndex}>
-                    <div 
+                    <div
                         className={`option-value ${isSelected ? 'selected' : ''}`}
                         onClick={() => handleOptionSelect(option.attribute.id, property.id)}
                     >
                         {property.name}
-                        {option.required && !selectedOptions[option.attribute.id] && 
+                        {option.required && !selectedOptions[option.attribute.id] &&
                             <span className="text-danger ms-1">*</span>
                         }
                     </div>
@@ -245,23 +246,15 @@ function ProductDetail() {
                 return;
             }
 
-            // Tạo chuỗi values từ tất cả các options đã chọn theo thứ tự của optionsProduct
-            const selectedValues = optionsProduct
-                .map(opt => selectedOptions[opt.attribute.id])
-                .filter(Boolean)
-                .join(',');
-
-            console.log('Adding to cart with values:', selectedValues);
-
             // Chuẩn bị dữ liệu gửi đi
             const data = {
                 product_id: parseInt(id),
-                values: selectedValues,
+                values: product.variantDataID,
                 quantity: 1
             };
 
             const response = await cartService.createCart(data);
-            
+
             if (response.status === 200) {
                 if (response.data.status === "error") {
                     message.error(response.data.message || 'Có lỗi xảy ra');
@@ -297,20 +290,20 @@ function ProductDetail() {
 
     // Show loading page only when initially loading and no product data
     if (isLoading && (!product || !product.length)) {
-        return <LoadingPage />;
+        return <LoadingPage/>;
     }
 
     return (
         <div className="site-wrap">
-            <Header />
-                
+            <Header/>
+
             {/* Breadcrumb */}
             <div className="bg-light py-3">
                 <div className="container">
                     <div className="row">
                         <div className="col-md-12 mb-0">
-                            <a href="/" className="text-decoration-none">Trang chủ</a> 
-                            <span className="mx-2 mb-0">/</span> 
+                            <a href="/" className="text-decoration-none">Trang chủ</a>
+                            <span className="mx-2 mb-0">/</span>
                             <strong className="text-black">{product?.name || 'Loading...'}</strong>
                         </div>
                     </div>
@@ -331,26 +324,26 @@ function ProductDetail() {
                                     }}
                                     spaceBetween={10}
                                     navigation={true}
-                                    thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+                                    thumbs={{swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null}}
                                     modules={[FreeMode, Navigation, Thumbs]}
                                     className="mySwiper2"
                                 >
-                                    {product.gallery ? 
+                                    {product.gallery ?
                                         product.gallery.split(',').map((image, index) => (
                                             <SwiperSlide key={index}>
-                                                <img 
+                                                <img
                                                     src={`http://127.0.0.1:8000${image}`}
                                                     alt={`${product.name} - ${index + 1}`}
-                                                    style={{ width: '100%', height: 'auto' }}
+                                                    style={{width: '100%', height: 'auto'}}
                                                 />
                                             </SwiperSlide>
                                         ))
-                                        : 
+                                        :
                                         <SwiperSlide>
-                            <img
-                                src={`http://127.0.0.1:8000${product.thumbnail}`}
+                                            <img
+                                                src={`http://127.0.0.1:8000${product.thumbnail}`}
                                                 alt={product.name}
-                                                style={{ width: '100%', height: 'auto' }}
+                                                style={{width: '100%', height: 'auto'}}
                                             />
                                         </SwiperSlide>
                                     }
@@ -368,10 +361,10 @@ function ProductDetail() {
                                     >
                                         {product.gallery.split(',').map((image, index) => (
                                             <SwiperSlide key={index}>
-                                                <img 
+                                                <img
                                                     src={`http://127.0.0.1:8000${image}`}
                                                     alt={`${product.name} thumbnail ${index + 1}`}
-                                                    style={{ width: '100%', height: 'auto', cursor: 'pointer' }}
+                                                    style={{width: '100%', height: 'auto', cursor: 'pointer'}}
                                                 />
                                             </SwiperSlide>
                                         ))}
@@ -379,29 +372,29 @@ function ProductDetail() {
                                 )}
                             </div>
                         </div>
-                        
+
                         <div className="col-lg-6">
                             <div className="product-info">
                                 <div className="product-header mb-4">
-                                    <motion.h1 
+                                    <motion.h1
                                         className="product-title h2 mb-2"
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.5 }}
+                                        initial={{opacity: 0, y: 20}}
+                                        animate={{opacity: 1, y: 0}}
+                                        transition={{duration: 0.5}}
                                     >
                                         {product.name}
                                     </motion.h1>
-                                    
+
                                     <div className="product-meta d-flex align-items-center flex-wrap">
                                         <div className="me-4">
-                                            <Rate disabled defaultValue={4.5} allowHalf className="fs-6" />
+                                            <Rate disabled defaultValue={4.5} allowHalf className="fs-6"/>
                                             <span className="ms-2 text-muted small">({reviews.length} đánh giá)</span>
                                         </div>
                                         <div className="product-sku small text-muted">
                                             Mã SP: <span className="fw-medium">{product.sku || 'N/A'}</span>
-                            </div>
+                                        </div>
                                     </div>
-                                    </div>
+                                </div>
 
                                 {/* Product Price Display */}
                                 <div className="product-price-wrapper mb-4">
@@ -411,17 +404,18 @@ function ProductDetail() {
                                         </h3>
                                         {(product?.price || 0) > (product?.sale_price || 0) && (
                                             <>
-                                                <span className="original-price text-muted text-decoration-line-through fs-5">
+                                                <span
+                                                    className="original-price text-muted text-decoration-line-through fs-5">
                                                     {ConvertNumber(product?.price || 0)}
                                                 </span>
-                                                <Badge 
-                                                    count={`-${Math.round((1 - (product?.sale_price || 0) / (product?.price || 1)) * 100)}%`} 
-                                                    style={{ 
+                                                <Badge
+                                                    count={`-${Math.round((1 - (product?.sale_price || 0) / (product?.price || 1)) * 100)}%`}
+                                                    style={{
                                                         backgroundColor: '#ff4d4f',
                                                         marginLeft: '12px',
                                                         fontSize: '12px',
                                                         fontWeight: '500'
-                                                    }} 
+                                                    }}
                                                 />
                                             </>
                                         )}
@@ -429,13 +423,15 @@ function ProductDetail() {
                                 </div>
 
                                 <div className="product-description mb-4">
-                                    <div className="short-desc" dangerouslySetInnerHTML={{ __html: product.short_description }}></div>
-                            </div>
+                                    <div className="short-desc"
+                                         dangerouslySetInnerHTML={{__html: product.short_description}}></div>
+                                </div>
 
                                 <div className="product-stock mb-4">
                                     <div className="d-flex align-items-center">
                                         <span className="stock-status me-2 small fw-medium">Tình trạng:</span>
-                                        <span className={`stock-value small ${product.quantity > 0 ? 'text-success' : 'text-danger'}`}>
+                                        <span
+                                            className={`stock-value small ${product.quantity > 0 ? 'text-success' : 'text-danger'}`}>
                                             {product.quantity > 0 ? 'Còn hàng' : 'Hết hàng'}
                                         </span>
                                         {product.quantity > 0 && (
@@ -444,7 +440,7 @@ function ProductDetail() {
                                             </span>
                                         )}
                                     </div>
-                                    </div>
+                                </div>
 
                                 {/* Product Options */}
                                 {optionsProduct.length > 0 && (
@@ -459,61 +455,61 @@ function ProductDetail() {
                                         ))}
                                     </div>
                                 )}
-                                
+
                                 {/* Action Buttons */}
                                 <div className="product-actions d-flex flex-wrap gap-2">
-                                    <button 
-                                        type="submit" 
+                                    <button
+                                        type="submit"
                                         className="btn btn-primary px-4 py-2"
                                         disabled={product.quantity <= 0 || isLoading}
                                     >
-                                        <FaShoppingCart className="me-2" />
+                                        <FaShoppingCart className="me-2"/>
                                         <span>Thêm vào giỏ hàng</span>
                                     </button>
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         className={`btn btn-outline-danger px-3 py-2 ${isWishlist ? 'active' : ''}`}
                                         onClick={toggleWishlist}
                                     >
-                                        {isWishlist ? <FaHeart /> : <FaRegHeart />}
-                                </button>
+                                        {isWishlist ? <FaHeart/> : <FaRegHeart/>}
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                        
+
                         {/* Product Tabs */}
                         <div className="col-12 mt-5">
                             <div className="product-tabs">
                                 <div className="tabs-header d-flex border-bottom mb-4">
-                                    <div 
+                                    <div
                                         className={`tab-item ${activeTab === 'description' ? 'active' : ''}`}
                                         onClick={() => setActiveTab('description')}
                                     >
                                         Mô tả sản phẩm
                                     </div>
-                                    <div 
+                                    <div
                                         className={`tab-item ${activeTab === 'reviews' ? 'active' : ''}`}
                                         onClick={() => setActiveTab('reviews')}
                                     >
                                         Đánh giá ({reviews.length})
                                     </div>
-                                    <div 
+                                    <div
                                         className={`tab-item ${activeTab === 'shipping' ? 'active' : ''}`}
                                         onClick={() => setActiveTab('shipping')}
                                     >
                                         Vận chuyển & Hoàn trả
                                     </div>
-                        </div>
-                                
+                                </div>
+
                                 <div className="tabs-content">
                                     {activeTab === 'description' && (
                                         <div className="tab-pane active">
                                             <div className="product-description-content">
-                                                <div dangerouslySetInnerHTML={{ __html: product.description }}></div>
+                                                <div dangerouslySetInnerHTML={{__html: product.description}}></div>
                                             </div>
                                         </div>
                                     )}
-                                    
+
                                     {activeTab === 'reviews' && (
                                         <div className="tab-pane active">
                                             <div className="reviews-section">
@@ -521,20 +517,23 @@ function ProductDetail() {
                                                     <div className="reviews-list">
                                                         {reviews.map((review, index) => (
                                                             <div className="review-item mb-4" key={index}>
-                                                                <div className="review-header d-flex align-items-center mb-2">
+                                                                <div
+                                                                    className="review-header d-flex align-items-center mb-2">
                                                                     <div className="reviewer-avatar mr-3">
-                                                                        <img 
-                                                                            src={review.user.avt || "https://via.placeholder.com/50"} 
-                                                                            alt={review.user.email} 
+                                                                        <img
+                                                                            src={review.user.avt || "https://via.placeholder.com/50"}
+                                                                            alt={review.user.email}
                                                                             className="rounded-circle"
                                                                         />
                                                                     </div>
                                                                     <div className="reviewer-info">
                                                                         <h6 className="reviewer-name mb-0">{review.user.email}</h6>
                                                                         <div className="review-rating">
-                                                {Array.from({ length: 5 }).map((_, i) => (
-                                                                                <span key={i} className={i < review.stars ? 'star-filled' : 'star-empty'}>
-                                                                                    {i < review.stars ? <FaStar /> : <FaRegStar />}
+                                                                            {Array.from({length: 5}).map((_, i) => (
+                                                                                <span key={i}
+                                                                                      className={i < review.stars ? 'star-filled' : 'star-empty'}>
+                                                                                    {i < review.stars ? <FaStar/> :
+                                                                                        <FaRegStar/>}
                                                                                 </span>
                                                                             ))}
                                                                         </div>
@@ -553,17 +552,19 @@ function ProductDetail() {
                                             </div>
                                         </div>
                                     )}
-                                    
+
                                     {activeTab === 'shipping' && (
                                         <div className="tab-pane active">
                                             <div className="shipping-info">
                                                 <h5>Chính sách vận chuyển</h5>
-                                                <p>Chúng tôi giao hàng toàn quốc với phí vận chuyển tùy thuộc vào địa điểm và phương thức vận chuyển.</p>
-                                                
+                                                <p>Chúng tôi giao hàng toàn quốc với phí vận chuyển tùy thuộc vào địa
+                                                    điểm và phương thức vận chuyển.</p>
+
                                                 <h5 className="mt-4">Chính sách hoàn trả</h5>
-                                                <p>Chúng tôi chấp nhận hoàn trả sản phẩm trong vòng 30 ngày kể từ ngày nhận hàng nếu sản phẩm có lỗi hoặc không đúng như mô tả.</p>
+                                                <p>Chúng tôi chấp nhận hoàn trả sản phẩm trong vòng 30 ngày kể từ ngày
+                                                    nhận hàng nếu sản phẩm có lỗi hoặc không đúng như mô tả.</p>
                                             </div>
-                                    </div>
+                                        </div>
                                     )}
                                 </div>
                             </div>
@@ -582,10 +583,10 @@ function ProductDetail() {
                     </div>
                     <div className="row">
                         <div className="col-md-12">
-                                <Swiper
+                            <Swiper
                                 slidesPerView={1}
                                 spaceBetween={20}
-                                    pagination={{ clickable: true }}
+                                pagination={{clickable: true}}
                                 modules={[Pagination, Navigation]}
                                 navigation={true}
                                 breakpoints={{
@@ -606,17 +607,17 @@ function ProductDetail() {
                                         <SwiperSlide key={index}>
                                             <div className="product-card">
                                                 <div className="product-card-image">
-                                                        <img
-                                                            src={`http://127.0.0.1:8000${product.thumbnail || "/assets/clients/images/cloth_1.jpg"}`}
+                                                    <img
+                                                        src={`http://127.0.0.1:8000${product.thumbnail || "/assets/clients/images/cloth_1.jpg"}`}
                                                         alt={product.name || "Product Name"}
-                                                            className="img-fluid"
+                                                        className="img-fluid"
                                                     />
                                                     <div className="product-card-actions">
                                                         <button className="action-btn">
-                                                            <FaShoppingCart />
+                                                            <FaShoppingCart/>
                                                         </button>
                                                         <button className="action-btn">
-                                                            <FaRegHeart />
+                                                            <FaRegHeart/>
                                                         </button>
                                                     </div>
                                                 </div>
@@ -625,7 +626,7 @@ function ProductDetail() {
                                                         <a href={'/products/' + product.id}>
                                                             {product.name || "Product Name"}
                                                         </a>
-                                                        </h3>
+                                                    </h3>
                                                     <div className="product-card-price">
                                                         <span className="sale-price">
                                                             {ConvertNumber(product.sale_price || 0)}
@@ -647,14 +648,14 @@ function ProductDetail() {
                                         </div>
                                     </SwiperSlide>
                                 )}
-                                </Swiper>
+                            </Swiper>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <Footer />
-            
+
+            <Footer/>
+
             <style>{`
                 .product-info {
                     font-size: 14px;
